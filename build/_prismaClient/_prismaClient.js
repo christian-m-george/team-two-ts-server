@@ -76,6 +76,7 @@ const updatePassword = (userData, newPassword) => __awaiter(void 0, void 0, void
         throw e;
     });
 });
+// Exports all the prisma methods, will need to contain more than just User methods
 const userMethods = {
     getUserByEmail: getUserByEmail,
     getUserById: getUserById,
