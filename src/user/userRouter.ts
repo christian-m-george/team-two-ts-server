@@ -1,6 +1,9 @@
 import express, { Request, Response, NextFunction, Router } from 'express';
 import userMethods from '../_prismaClient/_prismaClient';
 const userRouter: Router = express.Router();
+import argon2 from 'argon2';
+
+
 
 // Handles requests for User objects individually. 
 // Full data that it sends should not necessarily go to client
@@ -17,7 +20,18 @@ userRouter.get("/", async (req: Request, res: Response, next: NextFunction) =>  
 // Handles User creation, still requires validation of input data. 
 // Also requires implementation of password encryption
 userRouter.post("/", async (req: Request, res: Response, next: NextFunction) => {
-    const addUser = await userMethods.createUser(req.body).then(data => res.json(data)).catch(err => {
+
+    const hashedPassword = await argon2.hash(req.body.password);
+
+    const newUser = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        password: hashedPassword
+    }
+    console.log(hashedPassword);
+
+    const addUser = await userMethods.createUser(newUser).then(data => res.json(data)).catch(err => {
         console.log(err)
         res.send("email already exists");
     })
