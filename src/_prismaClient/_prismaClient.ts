@@ -61,6 +61,7 @@ const updatePassword = async (userData: User, newPassword: string) => await pris
     throw e
 })
 
+// Exports all the prisma methods, will need to contain more than just User methods
 const userMethods = {
     getUserByEmail: getUserByEmail,
     getUserById: getUserById,
