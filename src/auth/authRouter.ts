@@ -19,8 +19,6 @@ authRouter.post("/", async (req: Request, res: Response, next: NextFunction) => 
   else {
       const myUser = await userMethods.getUserByEmail(userEmail);
       const hashedPassword = myUser?.password;
-      console.log("THIS IS USER: " + myUser?.password);
-      const checkPassword = myUser?.password;
       if(hashedPassword != undefined) {
         try {
           if(await argon2.verify(hashedPassword, userPassword)) {

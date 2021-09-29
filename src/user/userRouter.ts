@@ -22,20 +22,21 @@ userRouter.get("/", async (req: Request, res: Response, next: NextFunction) =>  
 userRouter.post("/", async (req: Request, res: Response, next: NextFunction) => {
 
     const hashedPassword = await argon2.hash(req.body.password);
-
-    const newUser = {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        password: hashedPassword
+    if(!hashedPassword) return res.json(500)
+    else {
+        const newUser = {
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            email: req.body.email,
+            password: hashedPassword
+        }
+    
+        const addUser = await userMethods.createUser(newUser).then(data => res.json(data)).catch(err => {
+            console.log(err)
+            res.send("email already exists");
+        })
+        return addUser;
     }
-    console.log(hashedPassword);
-
-    const addUser = await userMethods.createUser(newUser).then(data => res.json(data)).catch(err => {
-        console.log(err)
-        res.send("email already exists");
-    })
-    return addUser;
 });
 
 // Allows user to change their email address
