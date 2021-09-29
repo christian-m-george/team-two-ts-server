@@ -14,7 +14,7 @@ model User {
   role      Role      @default(USER)
   firstName String    @db.VarChar(32)
   lastName  String    @db.VarChar(32)
-  password  String    @db.VarChar(64)
+  password  String    @db.VarChar(100)
   surveys   Surveys[]
 }
 
