@@ -71,9 +71,21 @@ userRouter.patch("/password", async (req: Request, res: Response, next: NextFunc
 });
 
 // Allows for User account deletion
-userRouter.delete("/", (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.body);
-    res.json(req.body);
+// The data service finds the user by email
+// That is not necessarily ideal
+userRouter.delete("/", async (req: Request, res: Response, next: NextFunction) => {
+    const user = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        password: req.body.password
+    }
+    const removeUser = await userMethods.deleteUser(user).then(() => res.json('user deleted')).catch(err => {
+        console.log(err);
+        res.send("user not found or something else went wrong lol");
+    })
+
+    return removeUser;
 });
 
 export default userRouter;
