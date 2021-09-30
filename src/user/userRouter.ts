@@ -4,9 +4,8 @@ const userRouter: Router = express.Router();
 import argon2 from 'argon2';
 
 
-
-// Handles requests for User objects individually. 
-// Full data that it sends should not necessarily go to client
+// Handles requests for User objects individually by email. 
+// Full data that it sends should not necessarily go to client. need to fix that
 userRouter.get("/", async (req: Request, res: Response, next: NextFunction) =>  {
     const userEmail: string = req.body.email;
     if (!userEmail) res.send(400);
@@ -30,12 +29,19 @@ userRouter.post("/", async (req: Request, res: Response, next: NextFunction) => 
             email: req.body.email,
             password: hashedPassword
         }
-    
-        const addUser = await userMethods.createUser(newUser).then(data => res.json(data)).catch(err => {
-            console.log(err)
-            res.send("email already exists");
-        })
-        return addUser;
+
+        const userEmail: string = req.body.email;
+        const myUser = await userMethods.getUserByEmail(userEmail);
+        if(myUser) {
+            return res.status(400).json("user exists already");
+        } else {
+            const addUser = await userMethods.createUser(newUser).then(data =>  
+                res.json(data)).catch(err => {
+                console.log(err)
+                res.json("email already exists");
+                })
+            return addUser;
+        }
     }
 });
 
