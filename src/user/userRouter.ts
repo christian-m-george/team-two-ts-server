@@ -1,8 +1,8 @@
 import express, { Request, Response, NextFunction, Router } from 'express';
-import userMethods from '../_prismaClient/_prismaClient';
-const userRouter: Router = express.Router();
+import dbMethods from '../_prismaClient/_prismaClient';
 import argon2 from 'argon2';
 
+const userRouter: Router = express.Router();
 
 // Handles requests for User objects individually by email. 
 // Full data that it sends should not necessarily go to client. need to fix that
@@ -10,7 +10,7 @@ userRouter.get("/", async (req: Request, res: Response, next: NextFunction) =>  
     const userEmail: string = req.body.email;
     if (!userEmail) res.send(400);
     else {
-        const myUser = await userMethods.getUserByEmail(userEmail);
+        const myUser = await dbMethods.userMethods.getUserByEmail(userEmail);
         if (myUser) res.send(myUser)
         else res.send("user not found");
     }
@@ -31,11 +31,11 @@ userRouter.post("/", async (req: Request, res: Response, next: NextFunction) => 
         }
 
         const userEmail: string = req.body.email;
-        const myUser = await userMethods.getUserByEmail(userEmail);
+        const myUser = await dbMethods.userMethods.getUserByEmail(userEmail);
         if(myUser) {
             return res.status(400).json("user exists already");
         } else {
-            const addUser = await userMethods.createUser(newUser).then(data =>  
+            const addUser = await dbMethods.userMethods.createUser(newUser).then(data =>  
                 res.json(data)).catch(err => {
                 console.log(err)
                 res.json("email already exists");
@@ -60,7 +60,7 @@ userRouter.patch("/email", async (req: Request, res: Response, next: NextFunctio
 
     if (!user) res.send('invalid user');
     
-    const resetEmail = await userMethods.updateEmail(user, newEmail).then(() => res.json('email updated')).catch(err => {
+    const resetEmail = await dbMethods.userMethods.updateEmail(user, newEmail).then(() => res.json('email updated')).catch(err => {
         console.log(err);
         res.send("invalid email");
     })
@@ -83,7 +83,7 @@ userRouter.patch("/password", async (req: Request, res: Response, next: NextFunc
 
     if (!user) res.send('invalid user')
     else {
-        const resetPassword = await userMethods.updatePassword(user, newPassword).then(() => res.json('password updated')).catch(err => {
+        const resetPassword = await dbMethods.userMethods.updatePassword(user, newPassword).then(() => res.json('password updated')).catch(err => {
             console.log(err);
             res.send("invalid user or password");
         })
@@ -101,7 +101,7 @@ userRouter.delete("/", async (req: Request, res: Response, next: NextFunction) =
         email: req.body.email,
         password: req.body.password
     }
-    const removeUser = await userMethods.deleteUser(user).then(() => res.json('user deleted')).catch(err => {
+    const removeUser = await dbMethods.userMethods.deleteUser(user).then(() => res.json('user deleted')).catch(err => {
         console.log(err);
         res.send("user not found or something else went wrong lol");
     })

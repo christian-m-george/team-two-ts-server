@@ -15,8 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const _prismaClient_1 = __importDefault(require("../_prismaClient/_prismaClient"));
 const userRouter = express_1.default.Router();
-// Handles requests for User objects individually. 
-// Full data that it sends should not necessarily go to client
+const argon2_1 = __importDefault(require("argon2"));
+// Handles requests for User objects individually by email. 
+// Full data that it sends should not necessarily go to client. need to fix that
 userRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const userEmail = req.body.email;
     if (!userEmail)
@@ -32,11 +33,29 @@ userRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, functi
 // Handles User creation, still requires validation of input data. 
 // Also requires implementation of password encryption
 userRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const addUser = yield _prismaClient_1.default.createUser(req.body).then(data => res.json(data)).catch(err => {
-        console.log(err);
-        res.send("email already exists");
-    });
-    return addUser;
+    const hashedPassword = yield argon2_1.default.hash(req.body.password);
+    if (!hashedPassword)
+        return res.json(500);
+    else {
+        const newUser = {
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            email: req.body.email,
+            password: hashedPassword
+        };
+        const userEmail = req.body.email;
+        const myUser = yield _prismaClient_1.default.getUserByEmail(userEmail);
+        if (myUser) {
+            return res.status(400).json("user exists already");
+        }
+        else {
+            const addUser = yield _prismaClient_1.default.createUser(newUser).then(data => res.json(data)).catch(err => {
+                console.log(err);
+                res.json("email already exists");
+            });
+            return addUser;
+        }
+    }
 }));
 // Allows user to change their email address
 // Right now it requires that a full User type input and a new email, all in the Request body. 

@@ -23,4 +23,4 @@ const extractJWT = (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
-export default extractJWT;
+export default extractJWT

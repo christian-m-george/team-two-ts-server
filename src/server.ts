@@ -5,16 +5,13 @@ import authRouter from './auth/authRouter';
 import surveyRouter from './survey/surveyRouter';
 import config from './config';
 import {Request, Response, NextFunction} from 'express';
-import userMethods from './_prismaClient/_prismaClient';
-import User from './user/user';
-
 
 dotenv.config();
 
 app.get("/", (req: Request, res: Response, next: NextFunction) => {
     res.send("hello, world!");
 });
-  
+
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
 app.use('/survey', surveyRouter);

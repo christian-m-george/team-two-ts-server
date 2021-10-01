@@ -1,6 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 const NODE_ENV: string = process.env.NODE_ENV || 'development';
 const PORT = process.env.PORT || 8000;
 const SERVER_TOKEN_EXPIRE_TIME = process.env.SERVER_TOKEN_EXPIRE_TIME || 3600;

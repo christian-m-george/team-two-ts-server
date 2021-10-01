@@ -25,7 +25,13 @@ model Surveys {
   published Boolean  @default(false)
   title     String   @db.VarChar(255)
   authorId  Int?
+  authorEmail String?  @db.VarChar(64)
   author    User?    @relation(fields: [authorId], references: [id])
+  category  String
+  singleQuestion Boolean
+  isPrivate Boolean
+  isRandom  Boolean
+  numQuestions  Int 
 }
 
 enum Role {
@@ -33,3 +39,23 @@ enum Role {
   ADMIN
   PREMIUM
 }
+
+// enum Category {
+//   VOLUNTEER_FEEDBACK
+//   CUSTOMER_FEEDBACK
+//   CONCEPT_TESTING
+//   BRAND_AWARENESS
+//   MARKET_RESEARCH
+//   EMPLOYEE_ENGAGEMENT
+//   EMPLOYEE_PERFORMANCE
+//   EMPLOYEE_FEEDBACK
+//   EVENT_REGISTRATION
+//   EVENT_FEEDBACK
+//   ACADEMIC_RESEARCH
+//   COURSE_EVALUATION
+//   PARENT_FEEDBACK
+//   APPLICATION
+//   VOTE
+//   POLL
+//   OTHER
+// }

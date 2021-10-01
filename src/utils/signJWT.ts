@@ -7,6 +7,7 @@ const signJWT = (email: string, callback: (error: Error | null, token: string | 
     const expirationTimeInSeconds = Math.floor(expirationTime / 1000);
 
     try {
+        
         jwt.sign(
         {
             email: email,
@@ -23,8 +24,8 @@ const signJWT = (email: string, callback: (error: Error | null, token: string | 
             } else if (token) {
                 callback(null, token);
             }
-        }
-        )
+        })
+
     } catch(error) {
         console.log(error);
     }
