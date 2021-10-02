@@ -13,24 +13,33 @@ const authRouter: Router = express.Router();
 // Handles User logins
 // Needs to send an authorization token to client
 authRouter.post("/", async (req: Request, res: Response, next: NextFunction) => {
-  // console.log(JSON.stringify(req.body) + " THIS IS BODY ");
   const userEmail: string = req.body.email;
   const userPassword: string = req.body.password;
-  if (!userEmail || !userPassword) res.send('missing credentials')
+  if (!userEmail || !userPassword || userEmail.length<2 || userPassword.length < 2) {
+    console.log('here broooo')
+    return res.sendStatus(400);
+  }
   else {
-      const myUser = await dbMethods.userMethods.getUserByEmail(userEmail);
+      const myUser: {id: number, email: string, password: string, role: string, firstName: string, lastName: string} | null = await dbMethods.userMethods.getUserByEmail(userEmail);
       const hashedPassword = myUser?.password;
-      if(hashedPassword != undefined) {
+
+      console.log(hashedPassword + " THIS IS HASHED " + JSON.stringify(myUser));
+  
+      if(hashedPassword != undefined && myUser) {
+        myUser.password = hashedPassword;
+
         try {
-          if(await argon2.verify(hashedPassword, userPassword)) {
-            signJWT(userEmail, (error, token) => {
+          const verifyUser = await argon2.verify(hashedPassword, userPassword).catch(err => console.log(err));
+          if(verifyUser) {
+            console.log('got here');
+            signJWT(myUser.id, userEmail, myUser.firstName, myUser.lastName, myUser.role, (error, token) => {
               if(error) {
                 res.status(401).json({
                   message: 'unauthorized',
                   error: error
                 });
               } else if (token) {
-                // console.log(token + ' got a token bruh');
+                console.log(token + ' got a token bruh');
                 res.status(200).cookie('acctok', `${token}`, {
                   expires: new Date(Date.now() + 900000),
                   httpOnly: true

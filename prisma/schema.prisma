@@ -24,8 +24,8 @@ model Surveys {
   updatedAt DateTime @updatedAt
   published Boolean  @default(false)
   title     String   @db.VarChar(255)
-  authorId  Int?
-  authorEmail String?  @db.VarChar(64)
+  authorId  Int
+  authorEmail String  @db.VarChar(64)
   author    User?    @relation(fields: [authorId], references: [id])
   category  String
   singleQuestion Boolean

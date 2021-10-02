@@ -30,17 +30,13 @@ authRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     if (!userEmail || !userPassword)
         res.send('missing credentials');
     else {
-        const myUser = yield _prismaClient_1.default.getUserByEmail(userEmail);
+        const myUser = yield _prismaClient_1.default.userMethods.getUserByEmail(userEmail);
         const hashedPassword = myUser === null || myUser === void 0 ? void 0 : myUser.password;
-        console.log(hashedPassword + "    " + userPassword);
-        if (hashedPassword != undefined) {
+        if (hashedPassword != undefined && myUser) {
+            myUser.password = hashedPassword;
             try {
                 if (yield argon2_1.default.verify(hashedPassword, userPassword)) {
-                    res.cookie('rememberme', '1', {
-                        expires: new Date(Date.now() + 900000),
-                        httpOnly: true
-                    });
-                    (0, signJWT_1.default)(userEmail, (error, token) => {
+                    (0, signJWT_1.default)(myUser.id, userEmail, myUser.firstName, myUser.lastName, myUser.role, (error, token) => {
                         if (error) {
                             res.status(401).json({
                                 message: 'unauthorized',
@@ -48,8 +44,11 @@ authRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                             });
                         }
                         else if (token) {
-                            console.log(token + ' got a token bruh');
-                            res.status(200).json({
+                            // console.log(token + ' got a token bruh');
+                            res.status(200).cookie('acctok', `${token}`, {
+                                expires: new Date(Date.now() + 900000),
+                                httpOnly: true
+                            }).json({
                                 message: 'auth succesful',
                                 token,
                                 email: userEmail

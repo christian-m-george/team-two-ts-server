@@ -82,6 +82,7 @@ const getSurveyByUser = async (id: number) => await prisma.surveys.findMany({
 const createInitialSurvey = async (surveyData: SurveyData) => await prisma.surveys.create({
     data: {
         title: surveyData.title,
+        authorId: surveyData.authorId,
         authorEmail: surveyData.authorEmail,
         category: surveyData.category,
         singleQuestion: surveyData.singleQuestion,

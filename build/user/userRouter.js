@@ -14,8 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const _prismaClient_1 = __importDefault(require("../_prismaClient/_prismaClient"));
-const userRouter = express_1.default.Router();
 const argon2_1 = __importDefault(require("argon2"));
+const userRouter = express_1.default.Router();
 // Handles requests for User objects individually by email. 
 // Full data that it sends should not necessarily go to client. need to fix that
 userRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -23,7 +23,7 @@ userRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     if (!userEmail)
         res.send(400);
     else {
-        const myUser = yield _prismaClient_1.default.getUserByEmail(userEmail);
+        const myUser = yield _prismaClient_1.default.userMethods.getUserByEmail(userEmail);
         if (myUser)
             res.send(myUser);
         else
@@ -44,12 +44,12 @@ userRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, funct
             password: hashedPassword
         };
         const userEmail = req.body.email;
-        const myUser = yield _prismaClient_1.default.getUserByEmail(userEmail);
+        const myUser = yield _prismaClient_1.default.userMethods.getUserByEmail(userEmail);
         if (myUser) {
             return res.status(400).json("user exists already");
         }
         else {
-            const addUser = yield _prismaClient_1.default.createUser(newUser).then(data => res.json(data)).catch(err => {
+            const addUser = yield _prismaClient_1.default.userMethods.createUser(newUser).then(data => res.json(data)).catch(err => {
                 console.log(err);
                 res.json("email already exists");
             });
@@ -70,7 +70,7 @@ userRouter.patch("/email", (req, res, next) => __awaiter(void 0, void 0, void 0,
     const newEmail = req.body.newEmail;
     if (!user)
         res.send('invalid user');
-    const resetEmail = yield _prismaClient_1.default.updateEmail(user, newEmail).then(() => res.json('email updated')).catch(err => {
+    const resetEmail = yield _prismaClient_1.default.userMethods.updateEmail(user, newEmail).then(() => res.json('email updated')).catch(err => {
         console.log(err);
         res.send("invalid email");
     });
@@ -91,7 +91,7 @@ userRouter.patch("/password", (req, res, next) => __awaiter(void 0, void 0, void
     if (!user)
         res.send('invalid user');
     else {
-        const resetPassword = yield _prismaClient_1.default.updatePassword(user, newPassword).then(() => res.json('password updated')).catch(err => {
+        const resetPassword = yield _prismaClient_1.default.userMethods.updatePassword(user, newPassword).then(() => res.json('password updated')).catch(err => {
             console.log(err);
             res.send("invalid user or password");
         });
@@ -108,7 +108,7 @@ userRouter.delete("/", (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         email: req.body.email,
         password: req.body.password
     };
-    const removeUser = yield _prismaClient_1.default.deleteUser(user).then(() => res.json('user deleted')).catch(err => {
+    const removeUser = yield _prismaClient_1.default.userMethods.deleteUser(user).then(() => res.json('user deleted')).catch(err => {
         console.log(err);
         res.send("user not found or something else went wrong lol");
     });
