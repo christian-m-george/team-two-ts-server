@@ -67,10 +67,9 @@ surveyRouter.post("/", async (req: Request, res: Response, next: NextFunction) =
                     singleQuestion: stringToBoolean(surveyFormData.singleQuestion),
                     isPrivate: stringToBoolean(surveyFormData.isPrivate),
                     isRandom: stringToBoolean(surveyFormData.isRandom),
-                    numQuestions: surveyFormData.numQuestions
+                    numQuestions: stringToNumber(surveyFormData.numQuestions)
                 }
-                console.log( JSON.stringify(surveyFormObject) + " THIS IS SURVEY FORM DATA")
-                // console.log(typeof surveyFormData.numQuestions + "   THIS IS TYPE OF NUM QUESTIONS");
+                console.log( JSON.stringify(surveyFormObject) + " THIS IS SURVEY FORM DATA");
                 const newSurvey = await dbMethods.surveyMethods.createInitialSurvey(surveyFormObject).then(data =>  
                     res.json(data)).catch(err => {
                     console.log(err)
