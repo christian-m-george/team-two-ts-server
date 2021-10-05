@@ -1,8 +1,6 @@
 import nodemailer from 'nodemailer';
-import { isYieldExpression, StringLiteralLike } from 'typescript';
 
 interface ResetPassword {
-  from: string,
   to: string[],
   subject: string,
   text: string,
