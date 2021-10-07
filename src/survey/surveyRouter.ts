@@ -14,9 +14,8 @@ surveyRouter.get("/", (req: Request, res: Response, next: NextFunction) => {
 })
   
 surveyRouter.post("/", async (req: Request, res: Response, next: NextFunction) => {
-    // extractJWT(req, res, next);
     function stringToBoolean(data: any): boolean {
-        if(data === 'true') return true;
+        if(data == 'true') return true;
         else return false;
     }
 
@@ -29,17 +28,13 @@ surveyRouter.post("/", async (req: Request, res: Response, next: NextFunction) =
     const hash = cookie.acctok;
 
     if(hash) {
-
         // Returns decoded UserPayload type object which user's email and token issuer and expiration date
         function parseJwt (token: string): UserPayload {
             const payload = token.split('.')[1];
             const payLoadObj = JSON.parse(Buffer.from(payload, 'base64').toString());
             return payLoadObj;
         }
-
         const {id, email} = parseJwt(hash);
-        console.log(id + email + " GOT IT GOT IT ");
-
 
         // const userPayload: UserPayload = hash;
         // const userPayload = parseJwt(hash);
@@ -57,8 +52,8 @@ surveyRouter.post("/", async (req: Request, res: Response, next: NextFunction) =
             }
             else {
                 res.locals.jwt = decoded;
-                console.log('success decode?')
                 const surveyFormData: SurveyData = req.body.surveyFormData;
+                // console.log(surveyFormData);
                 const surveyFormObject = {
                     title: surveyFormData.title,  
                     authorId:  id,
@@ -69,19 +64,18 @@ surveyRouter.post("/", async (req: Request, res: Response, next: NextFunction) =
                     isRandom: stringToBoolean(surveyFormData.isRandom),
                     numQuestions: stringToNumber(surveyFormData.numQuestions)
                 }
-                console.log( JSON.stringify(surveyFormObject) + " THIS IS SURVEY FORM DATA");
-                const newSurvey = await dbMethods.surveyMethods.createInitialSurvey(surveyFormObject).then(data =>  
-                    res.json(data)).catch(err => {
-                    console.log(err)
-                    res.json("email already exists");
-                    })
-                return newSurvey;
+                // console.log( JSON.stringify(surveyFormObject) + " THIS IS SURVEY FORM DATA");
+                const newSurvey = await dbMethods.surveyMethods.createInitialSurvey(surveyFormObject);
+                if (newSurvey) {
+                    return res.json(newSurvey);
+                }
             }
         })
     } else {
         res.status(401).json('unauthorized');
     }
 });
+
 surveyRouter.patch("/", (req: Request, res: Response, next: NextFunction) => {
     console.log(req.body);
     res.json(req.body);
