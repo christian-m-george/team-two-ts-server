@@ -65,21 +65,21 @@ const updatePassword = async (userData: User, newPassword: string) => await pris
 
 
 // Retrieve survey from db by id
-const getSurveyByID = async (id: number) => await prisma.surveys.findUnique({
+const getSurveyByID = async (id: number) => await prisma.survey.findUnique({
     where: {
         id: id
     }
 })
 
 // Retrieve survey from db by user
-const getSurveyByUser = async (id: number) => await prisma.surveys.findMany({
+const getSurveyByUser = async (id: number) => await prisma.survey.findMany({
     where: {
         authorId: id
     }
 })
 
 // Post survey to db
-const createInitialSurvey = async (surveyData: SurveyData) => await prisma.surveys.create({
+const createInitialSurvey = async (surveyData: SurveyData) => await prisma.survey.create({
     data: {
         title: surveyData.title,
         authorId: surveyData.authorId,
@@ -95,7 +95,7 @@ const createInitialSurvey = async (surveyData: SurveyData) => await prisma.surve
 })
 
 // Delete User from db
-// const deleteUser = async (userData: User) => await prisma.surveys.delete({
+// const deleteUser = async (userData: User) => await prisma.survey.delete({
 //     where: {
 //         email: userData.email,
 //     }
@@ -104,7 +104,7 @@ const createInitialSurvey = async (surveyData: SurveyData) => await prisma.surve
 // })
 
 // Update User's email address in db
-// const updateEmail = async (userData: User, newEmail: string) => await prisma.surveys.update({
+// const updateEmail = async (userData: User, newEmail: string) => await prisma.survey.update({
 //     where: {
 //         email: userData.email
 //     },
@@ -116,7 +116,7 @@ const createInitialSurvey = async (surveyData: SurveyData) => await prisma.surve
 // })
 
 // Update User's password in db
-// const updatePassword = async (userData: User, newPassword: string) => await prisma.surveys.update({
+// const updatePassword = async (userData: User, newPassword: string) => await prisma.survey.update({
 //     where: {
 //         email: userData.email
 //     },
