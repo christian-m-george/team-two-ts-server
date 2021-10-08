@@ -3,6 +3,7 @@ import app from './app';
 import userRouter from './user/userRouter';
 import authRouter from './auth/authRouter';
 import surveyRouter from './survey/surveyRouter';
+import logoutRouter from './user/logout';
 import config from './config';
 import {Request, Response, NextFunction} from 'express';
 
@@ -15,6 +16,7 @@ app.get("/", (req: Request, res: Response, next: NextFunction) => {
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
 app.use('/survey', surveyRouter);
+app.use('/logout', logoutRouter);
   
 app.listen(config.PORT, (): void => {
     console.log(`Example app listening at http://localhost:${config.PORT}`);
