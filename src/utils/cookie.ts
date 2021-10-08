@@ -1,3 +1,4 @@
 export default interface Cookie {
-    acctok: string
+    acctok: string,
+    reftok: string
 }
