@@ -65,9 +65,9 @@ const updatePassword = async (userData: User, newPassword: string) => await pris
 
 
 // Retrieve survey from db by id
-const getSurveyByID = async (id: number) => await prisma.survey.findUnique({
+const getSurveyByID = async (id: number) => await prisma.survey.findMany({
     where: {
-        id: id
+        authorId: id
     }
 })
 
@@ -136,7 +136,8 @@ const createInitialSurvey = async (surveyData: SurveyData) => await prisma.surve
 
 // Exports all the survey primsa methods, 
 const surveyMethods = {
-    createInitialSurvey: createInitialSurvey
+    createInitialSurvey: createInitialSurvey,
+    getSurveyByUser: getSurveyByID
 }
 
 // Exports all the user prisma methods
