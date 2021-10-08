@@ -5,20 +5,40 @@ import Cookie from '../utils/cookie';
 import config from '../config';
 import UserPayload from '../user/userPayload';
 import { SurveyData } from './survey';
+import extractJWT from '../utils/extractJWT';
 
 const surveyRouter: Router = express.Router();
 
 surveyRouter.get("/", (req: Request, res: Response, next: NextFunction) => {
-    console.log('survey route accessed');
-    res.send('hit the user endpoint');
+
+    console.log(req.body + 'survey by survey id route accessed');
+    res.send('survey by survey id route accessed');
+})
+
+surveyRouter.get("/all", async (req: Request, res: Response, next: NextFunction) => {
+    const cookie: Cookie = req.cookies;
+    const hash = cookie.acctok;
+    function parseJwt (token: string): UserPayload {
+        const payload = token.split('.')[1];
+        const payLoadObj = JSON.parse(Buffer.from(payload, 'base64').toString());
+        return payLoadObj;
+    }
+    if(hash) {
+        const { id }  = parseJwt(hash);
+        const surveys = await dbMethods.surveyMethods.getSurveyByUser(id);
+        if (surveys) {
+            console.log(surveys);
+            return res.json(surveys);
+        } else {
+            return res.status(400).json('no surveys');
+        }
+    }
+    else {
+        return res.status(400).json('unauthorized');
+    }
 })
   
 surveyRouter.post("/", async (req: Request, res: Response, next: NextFunction) => {
-    function stringToBoolean(data: any): boolean {
-        if(data == 'true') return true;
-        else return false;
-    }
-
     function stringToNumber(data: string | number): number {
         if (typeof data === 'string') return parseInt(data);
         else return data;
@@ -59,12 +79,12 @@ surveyRouter.post("/", async (req: Request, res: Response, next: NextFunction) =
                     authorId:  id,
                     authorEmail: email,
                     category: surveyFormData.category,
-                    singleQuestion: stringToBoolean(surveyFormData.singleQuestion),
-                    isPrivate: stringToBoolean(surveyFormData.isPrivate),
-                    isRandom: stringToBoolean(surveyFormData.isRandom),
+                    singleQuestion: surveyFormData.singleQuestion,
+                    isPrivate: surveyFormData.isPrivate,
+                    isRandom: surveyFormData.isRandom,
                     numQuestions: stringToNumber(surveyFormData.numQuestions)
                 }
-                // console.log( JSON.stringify(surveyFormObject) + " THIS IS SURVEY FORM DATA");
+                console.log( JSON.stringify(surveyFormObject) + " THIS IS SURVEY FORM DATA");
                 const newSurvey = await dbMethods.surveyMethods.createInitialSurvey(surveyFormObject);
                 if (newSurvey) {
                     return res.json(newSurvey);
@@ -76,7 +96,7 @@ surveyRouter.post("/", async (req: Request, res: Response, next: NextFunction) =
     }
 });
 
-surveyRouter.patch("/", (req: Request, res: Response, next: NextFunction) => {
+surveyRouter.patch("/", extractJWT, (req: Request, res: Response, next: NextFunction) => {
     console.log(req.body);
     res.json(req.body);
 });
