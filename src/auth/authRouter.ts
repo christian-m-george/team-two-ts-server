@@ -43,9 +43,13 @@ authRouter.post("/", async (req: Request, res: Response, next: NextFunction) => 
                 res.status(200).cookie('acctok', `${token}`, {
                   expires: new Date(Date.now() + 900000),
                   httpOnly: true
+                }).cookie('reftok', 'justcheckin', {
+                  expires: new Date(Date.now() + 900000*10),
+                  httpOnly: true
                 }).json({
                   message: 'auth succesful',
                   token,
+                  id: myUser.id,
                   email: userEmail
                 });
               }
