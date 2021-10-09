@@ -6,6 +6,7 @@ import surveyRouter from './survey/surveyRouter';
 import logoutRouter from './user/logout';
 import config from './config';
 import {Request, Response, NextFunction} from 'express';
+import questionRouter from './question/questionRouter';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use('/user', userRouter);
 app.use('/auth', authRouter);
 app.use('/survey', surveyRouter);
 app.use('/logout', logoutRouter);
+app.use('/question', questionRouter);
 
   
 app.listen(config.PORT, (): void => {
