@@ -6,7 +6,6 @@ import config from '../config';
 import UserPayload from '../user/userPayload';
 import { SurveyData } from './survey';
 import extractJWT from '../utils/extractJWT';
-import { parse } from 'path/posix';
 
 const surveyRouter: Router = express.Router();
 
@@ -17,6 +16,7 @@ surveyRouter.get("/", (req: Request, res: Response, next: NextFunction) => {
 })
 
 surveyRouter.get("/all", async (req: Request, res: Response, next: NextFunction) => {
+    console.log('get all route accessed');
     const cookie: Cookie = req.cookies;
     const hash = cookie.acctok;
     function parseJwt (token: string): UserPayload {
@@ -28,7 +28,7 @@ surveyRouter.get("/all", async (req: Request, res: Response, next: NextFunction)
         const { id }  = parseJwt(hash);
         const surveys = await dbMethods.surveyMethods.getSurveyByUser(id);
         if (surveys) {
-            console.log(surveys);
+            // console.log(surveys);
             return res.json(surveys);
         } else {
             return res.status(400).json('no surveys');
@@ -55,7 +55,7 @@ surveyRouter.post("/", async (req: Request, res: Response, next: NextFunction) =
             const payLoadObj = JSON.parse(Buffer.from(payload, 'base64').toString());
             return payLoadObj;
         }
-        console.log(parseJwt(hash));
+        // console.log(parseJwt(hash));
         const {id, email} = parseJwt(hash);
 
         // const userPayload: UserPayload = hash;
@@ -86,7 +86,7 @@ surveyRouter.post("/", async (req: Request, res: Response, next: NextFunction) =
                     isRandom: surveyFormData.isRandom,
                     numQuestions: stringToNumber(surveyFormData.numQuestions)
                 }
-                console.log( JSON.stringify(surveyFormObject) + " THIS IS SURVEY FORM DATA");
+                // console.log( JSON.stringify(surveyFormObject) + " THIS IS SURVEY FORM DATA");
                 const newSurvey = await dbMethods.surveyMethods.createInitialSurvey(surveyFormObject);
                 if (newSurvey) {
                     return res.json(newSurvey);
