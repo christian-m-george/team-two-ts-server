@@ -16,19 +16,49 @@ const express_1 = __importDefault(require("express"));
 const _prismaClient_1 = __importDefault(require("../_prismaClient/_prismaClient"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../config"));
+const extractJWT_1 = __importDefault(require("../utils/extractJWT"));
 const surveyRouter = express_1.default.Router();
 surveyRouter.get("/", (req, res, next) => {
-    console.log('survey route accessed');
-    res.send('hit the user endpoint');
+    // console.log(req.body + 'survey by survey id route accessed');
+    // res.send('survey by survey id route accessed');
 });
-surveyRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // extractJWT(req, res, next);
-    function stringToBoolean(data) {
-        if (data === 'true')
-            return true;
-        else
-            return false;
+surveyRouter.get("/:surveyId", extractJWT_1.default, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(JSON.stringify(req.params) + " survey by survey id 86 route accessed");
+    const id = parseInt(req.params.surveyId);
+    const survey = yield _prismaClient_1.default.surveyMethods.getSurveyById(id);
+    if (survey) {
+        // console.log(surveys);
+        return res.json(survey);
     }
+    else {
+        return res.status(400).json('no surveys');
+    }
+}));
+surveyRouter.get("/all", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('get all route accessed');
+    const cookie = req.cookies;
+    const hash = cookie.acctok;
+    function parseJwt(token) {
+        const payload = token.split('.')[1];
+        const payLoadObj = JSON.parse(Buffer.from(payload, 'base64').toString());
+        return payLoadObj;
+    }
+    if (hash) {
+        const { id } = parseJwt(hash);
+        const surveys = yield _prismaClient_1.default.surveyMethods.getSurveyByUser(id);
+        if (surveys) {
+            // console.log(surveys);
+            return res.json(surveys);
+        }
+        else {
+            return res.status(400).json('no surveys');
+        }
+    }
+    else {
+        return res.status(400).json('unauthorized');
+    }
+}));
+surveyRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     function stringToNumber(data) {
         if (typeof data === 'string')
             return parseInt(data);
@@ -44,8 +74,8 @@ surveyRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, fun
             const payLoadObj = JSON.parse(Buffer.from(payload, 'base64').toString());
             return payLoadObj;
         }
+        // console.log(parseJwt(hash));
         const { id, email } = parseJwt(hash);
-        console.log(id + email + " GOT IT GOT IT ");
         // const userPayload: UserPayload = hash;
         // const userPayload = parseJwt(hash);
         // console.log(userPayload.email);
@@ -61,25 +91,23 @@ surveyRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, fun
             }
             else {
                 res.locals.jwt = decoded;
-                console.log('success decode?');
                 const surveyFormData = req.body.surveyFormData;
+                // console.log(surveyFormData);
                 const surveyFormObject = {
                     title: surveyFormData.title,
                     authorId: id,
                     authorEmail: email,
                     category: surveyFormData.category,
-                    singleQuestion: stringToBoolean(surveyFormData.singleQuestion),
-                    isPrivate: stringToBoolean(surveyFormData.isPrivate),
-                    isRandom: stringToBoolean(surveyFormData.isRandom),
-                    numQuestions: surveyFormData.numQuestions
+                    singleQuestion: surveyFormData.singleQuestion,
+                    isPrivate: surveyFormData.isPrivate,
+                    isRandom: surveyFormData.isRandom,
+                    numQuestions: stringToNumber(surveyFormData.numQuestions)
                 };
-                console.log(JSON.stringify(surveyFormObject) + " THIS IS SURVEY FORM DATA");
-                // console.log(typeof surveyFormData.numQuestions + "   THIS IS TYPE OF NUM QUESTIONS");
-                const newSurvey = yield _prismaClient_1.default.surveyMethods.createInitialSurvey(surveyFormObject).then(data => res.json(data)).catch(err => {
-                    console.log(err);
-                    res.json("email already exists");
-                });
-                return newSurvey;
+                // console.log( JSON.stringify(surveyFormObject) + " THIS IS SURVEY FORM DATA");
+                const newSurvey = yield _prismaClient_1.default.surveyMethods.createInitialSurvey(surveyFormObject);
+                if (newSurvey) {
+                    return res.json(newSurvey);
+                }
             }
         }));
     }
@@ -87,7 +115,7 @@ surveyRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         res.status(401).json('unauthorized');
     }
 }));
-surveyRouter.patch("/", (req, res, next) => {
+surveyRouter.patch("/", extractJWT_1.default, (req, res, next) => {
     console.log(req.body);
     res.json(req.body);
 });

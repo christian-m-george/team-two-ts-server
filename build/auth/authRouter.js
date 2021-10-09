@@ -16,6 +16,7 @@ const express_1 = __importDefault(require("express"));
 const _prismaClient_1 = __importDefault(require("../_prismaClient/_prismaClient"));
 const argon2_1 = __importDefault(require("argon2"));
 const signJWT_1 = __importDefault(require("../utils/signJWT"));
+const signRefreshJWT_1 = __importDefault(require("../utils/signRefreshJWT"));
 const authRouter = express_1.default.Router();
 // authRouter.get("/", (req: Request, res: Response, next: NextFunction) => {
 //   console.log(req.body, "this is the req body");
@@ -24,19 +25,22 @@ const authRouter = express_1.default.Router();
 // Handles User logins
 // Needs to send an authorization token to client
 authRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // console.log(JSON.stringify(req.body) + " THIS IS BODY ");
     const userEmail = req.body.email;
     const userPassword = req.body.password;
-    if (!userEmail || !userPassword)
-        res.send('missing credentials');
+    if (!userEmail || !userPassword || userEmail.length <= 4 || userPassword.length <= 6) {
+        console.log('here broooo');
+        return res.sendStatus(400);
+    }
     else {
         const myUser = yield _prismaClient_1.default.userMethods.getUserByEmail(userEmail);
         const hashedPassword = myUser === null || myUser === void 0 ? void 0 : myUser.password;
         if (hashedPassword != undefined && myUser) {
-            myUser.password = hashedPassword;
+            // myUser.password = hashedPassword;
             try {
-                if (yield argon2_1.default.verify(hashedPassword, userPassword)) {
-                    (0, signJWT_1.default)(myUser.id, userEmail, myUser.firstName, myUser.lastName, myUser.role, (error, token) => {
+                const verifyUser = yield argon2_1.default.verify(hashedPassword, userPassword).catch(err => console.log(err));
+                if (verifyUser) {
+                    // console.log('got here');
+                    (0, signRefreshJWT_1.default)(myUser.id, myUser.email, myUser.firstName, myUser.lastName, myUser.role, (error, token) => {
                         if (error) {
                             res.status(401).json({
                                 message: 'unauthorized',
@@ -44,14 +48,10 @@ authRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                             });
                         }
                         else if (token) {
-                            // console.log(token + ' got a token bruh');
-                            res.status(200).cookie('acctok', `${token}`, {
-                                expires: new Date(Date.now() + 900000),
+                            console.log(token + ' got a token bruh');
+                            res.cookie('reftok', `${token}`, {
+                                expires: new Date(Date.now() + 9000000),
                                 httpOnly: true
-                            }).json({
-                                message: 'auth succesful',
-                                token,
-                                email: userEmail
                             });
                         }
                     });
@@ -59,6 +59,29 @@ authRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                 else {
                     res.status(400).json('bad credentials');
                 }
+                (0, signJWT_1.default)(myUser.id, userEmail, myUser.firstName, myUser.lastName, myUser.role, (error, token) => {
+                    if (error) {
+                        res.status(401).json({
+                            message: 'unauthorized',
+                            error: error
+                        });
+                    }
+                    else if (token) {
+                        console.log(token + ' got a token bruh');
+                        res.status(200).cookie('acctok', `${token}`, {
+                            expires: new Date(Date.now() + 900000),
+                            httpOnly: true
+                        }).json({
+                            message: 'auth succesful',
+                            token,
+                            id: myUser.id,
+                            email: userEmail
+                        });
+                    }
+                    else {
+                        res.status(400).json('bad credentials');
+                    }
+                });
             }
             catch (err) {
                 return res.status(500).json({

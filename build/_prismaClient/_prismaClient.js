@@ -78,23 +78,43 @@ const updatePassword = (userData, newPassword) => __awaiter(void 0, void 0, void
 });
 // Update a question
 const updateQuestionByIdAndOrder = (question) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield prisma.question.update({
+    return yield prisma.question.updateMany({
         where: {
             surveyId: question.surveyId,
             order: question.order
         },
         data: {
+            questionText: question.questionText,
+            questionType: question.questionType,
             answers: question.answers
         }
     }).catch((e) => {
         throw e;
     });
 });
-// Retrieve survey from db by id
-const getSurveyByID = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield prisma.survey.findMany({
+// Retrieve user from db by id
+const getQuestionBySurveyIdAndOrder = (question) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield prisma.question.findMany({
         where: {
-            authorId: id
+            surveyId: question.surveyId,
+            order: question.order
+        }
+    });
+});
+// Retrieve user from db by id
+const getQuestionBySurveyIdAndOrderFrag = (surveyId, order) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield prisma.question.findMany({
+        where: {
+            surveyId: surveyId,
+            order: order
+        }
+    });
+});
+// Retrieve survey from db by id
+const getSurveyById = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield prisma.survey.findUnique({
+        where: {
+            id: id
         }
     });
 });
@@ -178,12 +198,15 @@ const addQuestion = (question) => __awaiter(void 0, void 0, void 0, function* ()
 const questionMethods = {
     addQuestion: addQuestion,
     getAllQuestionsById: getAllQuestionsById,
-    updateQuestionByIdAndOrder: updateQuestionByIdAndOrder
+    updateQuestionByIdAndOrder: updateQuestionByIdAndOrder,
+    getQuestionBySurveyIdAndOrder: getQuestionBySurveyIdAndOrder,
+    getQuestionBySurveyIdAndOrderFrag: getQuestionBySurveyIdAndOrderFrag
 };
 // Exports all the survey primsa methods, 
 const surveyMethods = {
     createInitialSurvey: createInitialSurvey,
-    getSurveyByUser: getSurveyByID
+    getSurveyByUser: getSurveyByUser,
+    getSurveyById: getSurveyById
 };
 // Exports all the user prisma methods
 const userMethods = {
