@@ -12,7 +12,7 @@ const extractJWT = (req: Request, res: Response, next: NextFunction) => {
     const refresh = cookie.reftok;
     
     if(hash) {
-        console.log('hash must have been true');
+        // console.log('hash must have been true');
         jwt.verify(hash, config.token.tokenSecret, async (error, decoded) => {
             if (error) {
                 console.log(error);
@@ -22,13 +22,13 @@ const extractJWT = (req: Request, res: Response, next: NextFunction) => {
                 });
             }
             else {
-                console.log('here 3');
+                // console.log('here 3');
                 res.locals.jwt = decoded;
                 next();
             }
         })
     } else if (refresh) {
-        console.log('refresh is true')
+        // console.log('refresh is true')
         jwt.verify(refresh, config.token.refreshSecret, async (error, decoded) => {
             if (error) {
                 console.log(error);
@@ -50,7 +50,7 @@ const extractJWT = (req: Request, res: Response, next: NextFunction) => {
                         error: error
                       });
                     } else if (token) {
-                      console.log(token + ' got a token bruh');
+                    //   console.log(token + ' got a token bruh');
                       res.cookie('reftok', `${token}`, {
                         expires: new Date(Date.now() + 9000000),
                         httpOnly: true
