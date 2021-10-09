@@ -76,17 +76,39 @@ const updatePassword = (userData, newPassword) => __awaiter(void 0, void 0, void
         throw e;
     });
 });
+// Update a question
+const updateQuestionByIdAndOrder = (question) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield prisma.question.update({
+        where: {
+            surveyId: question.surveyId,
+            order: question.order
+        },
+        data: {
+            answers: question.answers
+        }
+    }).catch((e) => {
+        throw e;
+    });
+});
 // Retrieve survey from db by id
 const getSurveyByID = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield prisma.surveys.findUnique({
+    return yield prisma.survey.findMany({
         where: {
-            id: id
+            authorId: id
+        }
+    });
+});
+// Retrieve all questions from db by surveyid
+const getAllQuestionsById = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield prisma.question.findMany({
+        where: {
+            surveyId: id
         }
     });
 });
 // Retrieve survey from db by user
 const getSurveyByUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield prisma.surveys.findMany({
+    return yield prisma.survey.findMany({
         where: {
             authorId: id
         }
@@ -94,7 +116,7 @@ const getSurveyByUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
 });
 // Post survey to db
 const createInitialSurvey = (surveyData) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield prisma.surveys.create({
+    return yield prisma.survey.create({
         data: {
             title: surveyData.title,
             authorId: surveyData.authorId,
@@ -110,7 +132,21 @@ const createInitialSurvey = (surveyData) => __awaiter(void 0, void 0, void 0, fu
     });
 });
 // Delete User from db
-// const deleteUser = async (userData: User) => await prisma.surveys.delete({
+const addQuestion = (question) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield prisma.question.create({
+        data: {
+            surveyId: question.surveyId,
+            questionType: question.questionType,
+            questionText: question.questionText,
+            order: question.order,
+            answers: question.answers
+        }
+    }).catch((e) => {
+        throw e;
+    });
+});
+// Delete User from db
+// const deleteUser = async (userData: User) => await prisma.survey.delete({
 //     where: {
 //         email: userData.email,
 //     }
@@ -118,7 +154,7 @@ const createInitialSurvey = (surveyData) => __awaiter(void 0, void 0, void 0, fu
 //     throw e
 // })
 // Update User's email address in db
-// const updateEmail = async (userData: User, newEmail: string) => await prisma.surveys.update({
+// const updateEmail = async (userData: User, newEmail: string) => await prisma.survey.update({
 //     where: {
 //         email: userData.email
 //     },
@@ -129,7 +165,7 @@ const createInitialSurvey = (surveyData) => __awaiter(void 0, void 0, void 0, fu
 //     throw e
 // })
 // Update User's password in db
-// const updatePassword = async (userData: User, newPassword: string) => await prisma.surveys.update({
+// const updatePassword = async (userData: User, newPassword: string) => await prisma.survey.update({
 //     where: {
 //         email: userData.email
 //     },
@@ -139,9 +175,15 @@ const createInitialSurvey = (surveyData) => __awaiter(void 0, void 0, void 0, fu
 // }).catch((e) => {
 //     throw e
 // })
+const questionMethods = {
+    addQuestion: addQuestion,
+    getAllQuestionsById: getAllQuestionsById,
+    updateQuestionByIdAndOrder: updateQuestionByIdAndOrder
+};
 // Exports all the survey primsa methods, 
 const surveyMethods = {
-    createInitialSurvey: createInitialSurvey
+    createInitialSurvey: createInitialSurvey,
+    getSurveyByUser: getSurveyByID
 };
 // Exports all the user prisma methods
 const userMethods = {
@@ -154,6 +196,7 @@ const userMethods = {
 };
 const dbMethods = {
     userMethods: userMethods,
-    surveyMethods: surveyMethods
+    surveyMethods: surveyMethods,
+    questionMethods: questionMethods
 };
 exports.default = dbMethods;
