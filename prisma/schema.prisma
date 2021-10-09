@@ -41,9 +41,10 @@ model Question {
   updatedAt DateTime @updatedAt
   surveyId  Int    
   survey    Survey   @relation(fields: [surveyId], references: [id])
-  questionType  QuestionType  
-  order     Int
+  questionText  String
+  questionType  String  @db.VarChar(30)
   answers   String[]
+  order     Int
 }
 
 enum Role {
@@ -52,20 +53,21 @@ enum Role {
   PREMIUM
 }
 
-enum QuestionType {
-  DROPDOWN
-  CHECKBOXES
-  STARRATING
-  RANKING
-  FILEUPLOAD
-  SLIDER
-  SINGLETEXTBOX
-  MULTIPLETEXTBOX
-  COMMENTBOX
-  CONTACTINFORMATION
-  MATRIXOFDROPDOWNS
-  DATETIME
-}
+// enum QuestionType {
+//   MULTIPLECHOICE
+//   DROPDOWN
+//   CHECKBOXES
+//   STARRATING
+//   RANKING
+//   FILEUPLOAD
+//   SLIDER
+//   SINGLETEXTBOX
+//   MULTIPLETEXTBOX
+//   COMMENTBOX
+//   CONTACTINFORMATION
+//   MATRIXOFDROPDOWNS
+//   DATETIME
+// }
 
 // enum Category {
 //   VOLUNTEER_FEEDBACK
