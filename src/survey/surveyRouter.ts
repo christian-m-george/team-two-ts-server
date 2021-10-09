@@ -6,6 +6,7 @@ import config from '../config';
 import UserPayload from '../user/userPayload';
 import { SurveyData } from './survey';
 import extractJWT from '../utils/extractJWT';
+import { parse } from 'path/posix';
 
 const surveyRouter: Router = express.Router();
 
@@ -54,6 +55,7 @@ surveyRouter.post("/", async (req: Request, res: Response, next: NextFunction) =
             const payLoadObj = JSON.parse(Buffer.from(payload, 'base64').toString());
             return payLoadObj;
         }
+        console.log(parseJwt(hash));
         const {id, email} = parseJwt(hash);
 
         // const userPayload: UserPayload = hash;
