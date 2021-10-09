@@ -17,6 +17,7 @@ app.use('/user', userRouter);
 app.use('/auth', authRouter);
 app.use('/survey', surveyRouter);
 app.use('/logout', logoutRouter);
+
   
 app.listen(config.PORT, (): void => {
     console.log(`Example app listening at http://localhost:${config.PORT}`);
