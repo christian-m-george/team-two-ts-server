@@ -11,8 +11,20 @@ const surveyRouter: Router = express.Router();
 
 surveyRouter.get("/", (req: Request, res: Response, next: NextFunction) => {
 
-    console.log(req.body + 'survey by survey id route accessed');
-    res.send('survey by survey id route accessed');
+    // console.log(req.body + 'survey by survey id route accessed');
+    // res.send('survey by survey id route accessed');
+})
+
+surveyRouter.get("/:surveyId", extractJWT, async (req: Request, res: Response, next: NextFunction) => {
+    console.log(JSON.stringify(req.params) + " survey by survey id 86 route accessed");
+    const id = parseInt(req.params.surveyId);
+    const survey = await dbMethods.surveyMethods.getSurveyById(id);
+        if (survey) {
+            // console.log(surveys);
+            return res.json(survey);
+        } else {
+            return res.status(400).json('no surveys');
+        }
 })
 
 surveyRouter.get("/all", async (req: Request, res: Response, next: NextFunction) => {
