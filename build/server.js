@@ -8,7 +8,9 @@ const app_1 = __importDefault(require("./app"));
 const userRouter_1 = __importDefault(require("./user/userRouter"));
 const authRouter_1 = __importDefault(require("./auth/authRouter"));
 const surveyRouter_1 = __importDefault(require("./survey/surveyRouter"));
+const logout_1 = __importDefault(require("./user/logout"));
 const config_1 = __importDefault(require("./config"));
+const questionRouter_1 = __importDefault(require("./question/questionRouter"));
 dotenv_1.default.config();
 app_1.default.get("/", (req, res, next) => {
     res.send("hello, world!");
@@ -16,6 +18,8 @@ app_1.default.get("/", (req, res, next) => {
 app_1.default.use('/user', userRouter_1.default);
 app_1.default.use('/auth', authRouter_1.default);
 app_1.default.use('/survey', surveyRouter_1.default);
+app_1.default.use('/logout', logout_1.default);
+app_1.default.use('/question', questionRouter_1.default);
 app_1.default.listen(config_1.default.PORT, () => {
     console.log(`Example app listening at http://localhost:${config_1.default.PORT}`);
 });
