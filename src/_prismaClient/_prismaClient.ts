@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { SurveyData } from '../survey/survey';
 import User from '../user/user';
+import Question from '../question/question';
 
 const prisma = new PrismaClient();
 
@@ -62,12 +63,51 @@ const updatePassword = async (userData: User, newPassword: string) => await pris
     throw e
 })
 
+// Update a question
+const updateQuestionByIdAndOrder = async (question: Question) => await prisma.question.updateMany({
+    where: {
+        surveyId: question.surveyId,
+        order: question.order
+    },
+    data: {
+        questionText: question.questionText,
+        questionType: question.questionType,
+        answers: question.answers
+    }
+}).catch((e) => {
+    throw e
+})
+
+// Retrieve user from db by id
+const getQuestionBySurveyIdAndOrder = async (question: Question) => await prisma.question.findMany({
+    where: {
+        surveyId: question.surveyId,
+        order: question.order
+    }
+})
+
+// Retrieve user from db by id
+const getQuestionBySurveyIdAndOrderFrag = async (surveyId: number, order: number) => await prisma.question.findMany({
+    where: {
+        surveyId: surveyId,
+        order: order
+    }
+})
+
 
 
 // Retrieve survey from db by id
-const getSurveyByID = async (id: number) => await prisma.survey.findMany({
+const getSurveyById = async (id: number) => await prisma.survey.findUnique({
     where: {
-        authorId: id
+        id: id
+    }
+})
+
+
+// Retrieve all questions from db by surveyid
+const getAllQuestionsById = async (id: number) => await prisma.question.findMany({
+    where: {
+        surveyId: id
     }
 })
 
@@ -91,6 +131,19 @@ const createInitialSurvey = async (surveyData: SurveyData) => await prisma.surve
         numQuestions: surveyData.numQuestions
 
 }}).catch((e) => {
+    throw e
+})
+
+// Delete User from db
+const addQuestion = async (question: Question) => await prisma.question.create({
+    data: {
+        surveyId: question.surveyId,
+        questionType: question.questionType,
+        questionText: question.questionText,
+        order: question.order,
+        answers: question.answers
+    }
+}).catch((e) => {
     throw e
 })
 
@@ -131,13 +184,20 @@ const createInitialSurvey = async (surveyData: SurveyData) => await prisma.surve
 
 
 
-
+const questionMethods = {
+    addQuestion: addQuestion,
+    getAllQuestionsById: getAllQuestionsById,
+    updateQuestionByIdAndOrder: updateQuestionByIdAndOrder,
+    getQuestionBySurveyIdAndOrder: getQuestionBySurveyIdAndOrder,
+    getQuestionBySurveyIdAndOrderFrag: getQuestionBySurveyIdAndOrderFrag
+}
 
 
 // Exports all the survey primsa methods, 
 const surveyMethods = {
     createInitialSurvey: createInitialSurvey,
-    getSurveyByUser: getSurveyByID
+    getSurveyByUser: getSurveyByUser,
+    getSurveyById: getSurveyById
 }
 
 // Exports all the user prisma methods
@@ -152,7 +212,8 @@ const userMethods = {
 
 const dbMethods = {
     userMethods: userMethods,
-    surveyMethods: surveyMethods
+    surveyMethods: surveyMethods,
+    questionMethods: questionMethods
 }
 
 
