@@ -39,10 +39,10 @@ authRouter.post("/", async (req: Request, res: Response, next: NextFunction) => 
                   error: error
                 });
               } else if (token) {
-                console.log(token + ' got a token bruh');
                 res.cookie('reftok', `${token}`, {
                   expires: new Date(Date.now() + 9000000),
-                  httpOnly: true
+                  httpOnly: true,
+                  sameSite: 'none'
                 })
               }
             });
@@ -59,7 +59,8 @@ authRouter.post("/", async (req: Request, res: Response, next: NextFunction) => 
                 console.log(token + ' got a token bruh');
                 res.status(200).cookie('acctok', `${token}`, {
                   expires: new Date(Date.now() + 900000),
-                  httpOnly: true
+                  httpOnly: true,
+                  sameSite: 'none'
                 }).json({
                   message: 'auth succesful',
                   token,
