@@ -42,7 +42,8 @@ authRouter.post("/", async (req: Request, res: Response, next: NextFunction) => 
                 console.log(token + ' got a token bruh');
                 res.cookie('reftok', `${token}`, {
                   expires: new Date(Date.now() + 9000000),
-                  httpOnly: true
+                  httpOnly: true,
+                  secure: true
                 })
               }
             });
@@ -59,7 +60,8 @@ authRouter.post("/", async (req: Request, res: Response, next: NextFunction) => 
                 console.log(token + ' got a token bruh');
                 res.status(200).cookie('acctok', `${token}`, {
                   expires: new Date(Date.now() + 900000),
-                  httpOnly: true
+                  httpOnly: true,
+                  secure: true
                 }).json({
                   message: 'auth succesful',
                   token,

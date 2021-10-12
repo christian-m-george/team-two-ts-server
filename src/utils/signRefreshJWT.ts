@@ -2,6 +2,7 @@ import config from '../config';
 import jwt from 'jsonwebtoken';
 import UserPayload from '../user/userPayload';
 
+
 const signRefreshJWT = (id: number, email: string, firstName: string, lastName: string, role: string, callback: (error: Error | null, token: string | null) => void): void => {
     const timeSinceEpoch = new Date().getTime();
     const expirationTime = timeSinceEpoch + Number(config.token.expireTime) * 1000000;
