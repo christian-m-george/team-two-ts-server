@@ -15,6 +15,32 @@ surveyRouter.get("/", (req: Request, res: Response, next: NextFunction) => {
     // res.send('survey by survey id route accessed');
 })
 
+
+surveyRouter.get("/all", extractJWT, async (req: Request, res: Response, next: NextFunction) => {
+    console.log('get all route accessed');
+    const cookie: Cookie = req.cookies;
+    const hash = cookie.acctok;
+    function parseJwt (token: string): UserPayload {
+        const payload = token.split('.')[1];
+        const payLoadObj = JSON.parse(Buffer.from(payload, 'base64').toString());
+        return payLoadObj;
+    }
+    if(hash) {
+        const { id }  = parseJwt(hash);
+        console.log('this is id ' + id + " " + typeof id)
+        const surveys = await dbMethods.surveyMethods.getSurveyByUser(id);
+        if (surveys.length > 1) {
+            console.log(surveys);
+            return res.json(surveys);
+        } else {
+            return res.status(400).json('no surveys');
+        }
+    }
+    else {
+        return res.status(400).json('unauthorized');
+    }
+})
+
 surveyRouter.get("/:surveyId", extractJWT, async (req: Request, res: Response, next: NextFunction) => {
     console.log(JSON.stringify(req.params) + " survey by survey id 86 route accessed");
     const id = parseInt(req.params.surveyId);
@@ -27,30 +53,6 @@ surveyRouter.get("/:surveyId", extractJWT, async (req: Request, res: Response, n
         }
 })
 
-surveyRouter.get("/all", async (req: Request, res: Response, next: NextFunction) => {
-    console.log('get all route accessed');
-    const cookie: Cookie = req.cookies;
-    const hash = cookie.acctok;
-    function parseJwt (token: string): UserPayload {
-        const payload = token.split('.')[1];
-        const payLoadObj = JSON.parse(Buffer.from(payload, 'base64').toString());
-        return payLoadObj;
-    }
-    if(hash) {
-        const { id }  = parseJwt(hash);
-        const surveys = await dbMethods.surveyMethods.getSurveyByUser(id);
-        if (surveys) {
-            // console.log(surveys);
-            return res.json(surveys);
-        } else {
-            return res.status(400).json('no surveys');
-        }
-    }
-    else {
-        return res.status(400).json('unauthorized');
-    }
-})
-  
 surveyRouter.post("/", async (req: Request, res: Response, next: NextFunction) => {
     function stringToNumber(data: string | number): number {
         if (typeof data === 'string') return parseInt(data);

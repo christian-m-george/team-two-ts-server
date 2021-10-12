@@ -4,7 +4,7 @@ const logoutRouter: Router = express.Router();
 
 logoutRouter.get('/', (req: Request, res: Response) => {
     console.log('hit logout route');
-    res.clearCookie('acctok').clearCookie('reftok').send(200);
+    res.clearCookie('acctok').clearCookie('reftok').sendStatus(200);
 })
 
 export default logoutRouter;
