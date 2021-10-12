@@ -48,10 +48,11 @@ authRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                             });
                         }
                         else if (token) {
-                            console.log(token + ' got a token bruh');
                             res.cookie('reftok', `${token}`, {
                                 expires: new Date(Date.now() + 9000000),
-                                httpOnly: true
+                                httpOnly: true,
+                                secure: true,
+                                sameSite: 'none'
                             });
                         }
                     });
@@ -70,7 +71,9 @@ authRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                         console.log(token + ' got a token bruh');
                         res.status(200).cookie('acctok', `${token}`, {
                             expires: new Date(Date.now() + 900000),
-                            httpOnly: true
+                            httpOnly: true,
+                            secure: true,
+                            sameSite: 'none'
                         }).json({
                             message: 'auth succesful',
                             token,
