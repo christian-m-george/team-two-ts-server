@@ -9,8 +9,9 @@ const app: Application = express();
 
 app.use(cookieParser())
 app.use(cors({
-    origin: "*",
+    origin: "https://team-two-client-499j6twsk-christian-m-george.vercel.app",
     credentials: true,
+    
   }));
 app.use(express.json())
 app.enable('trust proxy')

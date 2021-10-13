@@ -27,7 +27,6 @@ authRouter.post("/", async (req: Request, res: Response, next: NextFunction) => 
   
       if(hashedPassword != undefined && myUser) {
         // myUser.password = hashedPassword;
-
         try {
           const verifyUser = await argon2.verify(hashedPassword, userPassword).catch(err => console.log(err));
           if(verifyUser) {
@@ -83,6 +82,5 @@ authRouter.post("/", async (req: Request, res: Response, next: NextFunction) => 
       }
   }
 });
-
 
 export default authRouter;
