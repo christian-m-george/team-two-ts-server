@@ -9,7 +9,7 @@ const app: Application = express();
 
 app.use(cookieParser())
 app.use(cors({
-    origin: "https://team-two-client-499j6twsk-christian-m-george.vercel.app",
+    origin: "https://team-two-client.vercel.app",
     credentials: true,
     
   }));
