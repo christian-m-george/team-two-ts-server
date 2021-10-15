@@ -15,13 +15,14 @@ const authRouter: Router = express.Router();
 // Handles User logins
 // Needs to send an authorization token to client
 authRouter.post("/", async (req: Request, res: Response, next: NextFunction) => {
+  
   const userEmail: string = req.body.email;
   const userPassword: string = req.body.password;
   if (!userEmail || !userPassword || userEmail.length<=4 || userPassword.length <= 6) {
-    console.log('here broooo')
-    return res.sendStatus(400);
+    return res.sendStatus(400).json('missing username or password');
   }
   else {
+    
       const myUser: UserPayloadDTO | null = await dbMethods.userMethods.getUserByEmail(userEmail);
       const hashedPassword = myUser?.password;
   
@@ -33,7 +34,7 @@ authRouter.post("/", async (req: Request, res: Response, next: NextFunction) => 
             // console.log('got here');
             signRefreshJWT(myUser.id, myUser.email, myUser.firstName, myUser.lastName, myUser.role, (error, token) => {
               if(error) {
-                res.status(401).json({
+                res.sendStatus(401).json({
                   message: 'unauthorized',
                   error: error
                 });
@@ -56,7 +57,6 @@ authRouter.post("/", async (req: Request, res: Response, next: NextFunction) => 
                   error: error
                 });
               } else if (token) {
-                console.log(token + ' got a token bruh');
                 res.status(200).cookie('acctok', `${token}`, {
                   expires: new Date(Date.now() + 900000),
                   httpOnly: true,

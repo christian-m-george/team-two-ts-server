@@ -27,10 +27,8 @@ surveyRouter.get("/all", extractJWT, async (req: Request, res: Response, next: N
     }
     if(hash) {
         const { id }  = parseJwt(hash);
-        console.log('this is id ' + id + " " + typeof id)
         const surveys = await dbMethods.surveyMethods.getSurveyByUser(id);
         if (surveys.length > 1) {
-            console.log(surveys);
             return res.json(surveys);
         } else {
             return res.status(400).json('no surveys');
@@ -117,9 +115,36 @@ surveyRouter.patch("/", extractJWT, (req: Request, res: Response, next: NextFunc
     res.json(req.body);
 });
 
-surveyRouter.delete("/", (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.body);
-    res.json(req.body);
-});
+surveyRouter.delete("/", extractJWT, async (req: Request, res: Response, next: NextFunction) => {
+    console.log(req.body.surveyId);
+    const surveyId = req.body.surveyId;
+
+
+
+    if(surveyId) {
+        // const questions = await dbMethods.questionMethods.getQuestionBySurveyId(surveyId).catch(error => console.log(error))
+        // if (questions && questions.length > 0) {
+        //     console.log('here');
+        //     const deletedQuestions = await dbMethods.questionMethods.deleteQuestionsBySurveyId(surveyId).catch(error => console.log(error));
+        //     if(deletedQuestions) {
+        //         const surveyDeleted = await dbMethods.surveyMethods.deleteSurvey(surveyId).catch(error => console.log(error))
+        //         if(surveyDeleted) {
+        //             res.sendStatus(200);
+        //         } else {
+        //             res.sendStatus(400);
+        //         }
+        //     } else {
+        //         res.sendStatus(400);
+        //     }
+        // } else {
+            const surveyDeleted = await dbMethods.surveyMethods.deleteSurvey(surveyId).catch(error => console.log(error))
+            if(surveyDeleted) {
+                res.sendStatus(200);
+            } else {
+                res.sendStatus(400);
+            }
+    //     }
+    // }
+        }});
 
 export default surveyRouter;

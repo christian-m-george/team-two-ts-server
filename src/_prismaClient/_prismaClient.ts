@@ -79,6 +79,13 @@ const updateQuestionByIdAndOrder = async (question: Question) => await prisma.qu
 })
 
 // Retrieve user from db by id
+const getQuestionBySurveyId = async (surveyId: number) => await prisma.question.findMany({
+    where: {
+        surveyId: surveyId
+    }
+})
+
+// Retrieve user from db by id
 const getQuestionBySurveyIdAndOrder = async (question: Question) => await prisma.question.findMany({
     where: {
         surveyId: question.surveyId,
@@ -101,6 +108,25 @@ const getSurveyById = async (id: number) => await prisma.survey.findUnique({
     where: {
         id: id
     }
+})
+
+// Delete survey from db
+const deleteSurvey = async (surveyId: number) => await prisma.survey.delete({
+    where: {
+        id: surveyId,
+    }
+}).catch((e) => {
+    throw e
+})
+
+
+// Delete questions by survey id from db
+const deleteQuestionsBySurveyId = async (surveyId: number) => await prisma.survey.deleteMany({
+    where: {
+        id: surveyId,
+    }
+}).catch((e) => {
+    throw e
 })
 
 
@@ -189,7 +215,9 @@ const questionMethods = {
     getAllQuestionsById: getAllQuestionsById,
     updateQuestionByIdAndOrder: updateQuestionByIdAndOrder,
     getQuestionBySurveyIdAndOrder: getQuestionBySurveyIdAndOrder,
-    getQuestionBySurveyIdAndOrderFrag: getQuestionBySurveyIdAndOrderFrag
+    getQuestionBySurveyIdAndOrderFrag: getQuestionBySurveyIdAndOrderFrag,
+    deleteQuestionsBySurveyId: deleteQuestionsBySurveyId,
+    getQuestionBySurveyId: getQuestionBySurveyId
 }
 
 
@@ -197,7 +225,8 @@ const questionMethods = {
 const surveyMethods = {
     createInitialSurvey: createInitialSurvey,
     getSurveyByUser: getSurveyByUser,
-    getSurveyById: getSurveyById
+    getSurveyById: getSurveyById,
+    deleteSurvey: deleteSurvey,
 }
 
 // Exports all the user prisma methods
