@@ -28,7 +28,8 @@ surveyRouter.get("/all", extractJWT, async (req: Request, res: Response, next: N
     if(hash) {
         const { id }  = parseJwt(hash);
         const surveys = await dbMethods.surveyMethods.getSurveyByUser(id);
-        if (surveys.length > 1) {
+        console.log(surveys);
+        if (surveys.length >= 1) {
             return res.json(surveys);
         } else {
             return res.status(400).json('no surveys');
