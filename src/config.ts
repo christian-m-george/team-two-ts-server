@@ -21,7 +21,9 @@ const config = {
         tokenSecret: SERVER_TOKEN_SECRET,
         refreshSecret: REFRESH_TOKEN_SECRET,
         refreshExpireTime: REFRESH_TOKEN_EXPIRE_TIME
-    }
+    },
+    VERCEL_URL: `https://team-two-client.vercel.app`,
+    REACT_URL: `http://localhost:3000`
 };
 
 export default config;
