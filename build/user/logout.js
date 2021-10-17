@@ -7,6 +7,6 @@ const express_1 = __importDefault(require("express"));
 const logoutRouter = express_1.default.Router();
 logoutRouter.get('/', (req, res) => {
     console.log('hit logout route');
-    res.clearCookie('acctok').clearCookie('reftok').send(200);
+    res.clearCookie('acctok').clearCookie('reftok').sendStatus(200);
 });
 exports.default = logoutRouter;

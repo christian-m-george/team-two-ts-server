@@ -32,10 +32,10 @@ function main(resetPassword) {
         // send mail with defined transport object
         let info = yield transporter.sendMail({
             from: '"Questioneer" <passwordhelp@questioneer.com>',
-            to: "bar@example.com, baz@example.com",
+            to: ["christian.george360@gmail.com", "cgfullstack@gmail.com", "christian.george.eth@gmail.com"],
             subject: "Reset your password",
-            text: "Click the link to reset your password",
-            html: `<b>Hello world?<a href='${resetPassword.resetUrl}'></a></b>`, // html body
+            text: `${resetPassword.text}`,
+            html: `<b>Reset your password <a href='${resetPassword.resetUrl}'></a></b>`, // html body
         });
         console.log("Message sent: %s", info.messageId);
         // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
@@ -44,4 +44,12 @@ function main(resetPassword) {
         // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
     });
 }
+const fakeUser = {
+    to: ["christian.george360@gmail.com"],
+    subject: "test email man",
+    text: "how bout it did it work?",
+    html: "",
+    resetUrl: "string"
+};
+main(fakeUser);
 exports.default = main;

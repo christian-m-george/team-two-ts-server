@@ -93,6 +93,14 @@ const updateQuestionByIdAndOrder = (question) => __awaiter(void 0, void 0, void 
     });
 });
 // Retrieve user from db by id
+const getQuestionBySurveyId = (surveyId) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield prisma.question.findMany({
+        where: {
+            surveyId: surveyId
+        }
+    });
+});
+// Retrieve user from db by id
 const getQuestionBySurveyIdAndOrder = (question) => __awaiter(void 0, void 0, void 0, function* () {
     return yield prisma.question.findMany({
         where: {
@@ -116,6 +124,26 @@ const getSurveyById = (id) => __awaiter(void 0, void 0, void 0, function* () {
         where: {
             id: id
         }
+    });
+});
+// Delete survey from db
+const deleteSurvey = (surveyId) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield prisma.survey.delete({
+        where: {
+            id: surveyId,
+        }
+    }).catch((e) => {
+        throw e;
+    });
+});
+// Delete questions by survey id from db
+const deleteQuestionsBySurveyId = (surveyId) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield prisma.survey.deleteMany({
+        where: {
+            id: surveyId,
+        }
+    }).catch((e) => {
+        throw e;
     });
 });
 // Retrieve all questions from db by surveyid
@@ -200,13 +228,16 @@ const questionMethods = {
     getAllQuestionsById: getAllQuestionsById,
     updateQuestionByIdAndOrder: updateQuestionByIdAndOrder,
     getQuestionBySurveyIdAndOrder: getQuestionBySurveyIdAndOrder,
-    getQuestionBySurveyIdAndOrderFrag: getQuestionBySurveyIdAndOrderFrag
+    getQuestionBySurveyIdAndOrderFrag: getQuestionBySurveyIdAndOrderFrag,
+    deleteQuestionsBySurveyId: deleteQuestionsBySurveyId,
+    getQuestionBySurveyId: getQuestionBySurveyId
 };
 // Exports all the survey primsa methods, 
 const surveyMethods = {
     createInitialSurvey: createInitialSurvey,
     getSurveyByUser: getSurveyByUser,
-    getSurveyById: getSurveyById
+    getSurveyById: getSurveyById,
+    deleteSurvey: deleteSurvey,
 };
 // Exports all the user prisma methods
 const userMethods = {

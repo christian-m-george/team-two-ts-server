@@ -22,19 +22,7 @@ surveyRouter.get("/", (req, res, next) => {
     // console.log(req.body + 'survey by survey id route accessed');
     // res.send('survey by survey id route accessed');
 });
-surveyRouter.get("/:surveyId", extractJWT_1.default, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(JSON.stringify(req.params) + " survey by survey id 86 route accessed");
-    const id = parseInt(req.params.surveyId);
-    const survey = yield _prismaClient_1.default.surveyMethods.getSurveyById(id);
-    if (survey) {
-        // console.log(surveys);
-        return res.json(survey);
-    }
-    else {
-        return res.status(400).json('no surveys');
-    }
-}));
-surveyRouter.get("/all", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+surveyRouter.get("/all", extractJWT_1.default, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('get all route accessed');
     const cookie = req.cookies;
     const hash = cookie.acctok;
@@ -46,8 +34,7 @@ surveyRouter.get("/all", (req, res, next) => __awaiter(void 0, void 0, void 0, f
     if (hash) {
         const { id } = parseJwt(hash);
         const surveys = yield _prismaClient_1.default.surveyMethods.getSurveyByUser(id);
-        if (surveys) {
-            // console.log(surveys);
+        if (surveys.length > 1) {
             return res.json(surveys);
         }
         else {
@@ -56,6 +43,18 @@ surveyRouter.get("/all", (req, res, next) => __awaiter(void 0, void 0, void 0, f
     }
     else {
         return res.status(400).json('unauthorized');
+    }
+}));
+surveyRouter.get("/:surveyId", extractJWT_1.default, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(JSON.stringify(req.params) + " survey by survey id 86 route accessed");
+    const id = parseInt(req.params.surveyId);
+    const survey = yield _prismaClient_1.default.surveyMethods.getSurveyById(id);
+    if (survey) {
+        // console.log(surveys);
+        return res.json(survey);
+    }
+    else {
+        return res.status(400).json('no surveys');
     }
 }));
 surveyRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -119,8 +118,16 @@ surveyRouter.patch("/", extractJWT_1.default, (req, res, next) => {
     console.log(req.body);
     res.json(req.body);
 });
-surveyRouter.delete("/", (req, res, next) => {
-    console.log(req.body);
-    res.json(req.body);
-});
+surveyRouter.delete("/", extractJWT_1.default, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const surveyId = req.body.surveyId;
+    if (surveyId) {
+        const surveyDeleted = yield _prismaClient_1.default.surveyMethods.deleteSurvey(surveyId).catch(error => console.log(error));
+        if (surveyDeleted) {
+            res.sendStatus(200);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    }
+}));
 exports.default = surveyRouter;

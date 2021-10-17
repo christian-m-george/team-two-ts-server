@@ -28,8 +28,7 @@ authRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     const userEmail = req.body.email;
     const userPassword = req.body.password;
     if (!userEmail || !userPassword || userEmail.length <= 4 || userPassword.length <= 6) {
-        console.log('here broooo');
-        return res.sendStatus(400);
+        return res.sendStatus(400).json('missing username or password');
     }
     else {
         const myUser = yield _prismaClient_1.default.userMethods.getUserByEmail(userEmail);
@@ -42,7 +41,7 @@ authRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                     // console.log('got here');
                     (0, signRefreshJWT_1.default)(myUser.id, myUser.email, myUser.firstName, myUser.lastName, myUser.role, (error, token) => {
                         if (error) {
-                            res.status(401).json({
+                            res.sendStatus(401).json({
                                 message: 'unauthorized',
                                 error: error
                             });
@@ -68,7 +67,6 @@ authRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                         });
                     }
                     else if (token) {
-                        console.log(token + ' got a token bruh');
                         res.status(200).cookie('acctok', `${token}`, {
                             expires: new Date(Date.now() + 900000),
                             httpOnly: true,
