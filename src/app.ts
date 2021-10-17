@@ -7,7 +7,9 @@ dotenv.config();
 
 const app: Application = express();
 
-const environment = process.env.NODE_ENV === 'production' ? process.env.HEROKU_URL : process.env.REACT_URL;
+const environment = process.env.NODE_ENV === 'production' ? process.env.VERCEL_URL : process.env.REACT_URL;
+const HEROKU_URL = process.env.HEROKU_URL
+const VERCEL_URL = process.env.VERCEL_URL
 
 app.use(cookieParser())
 app.use(cors({

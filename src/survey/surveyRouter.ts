@@ -116,35 +116,13 @@ surveyRouter.patch("/", extractJWT, (req: Request, res: Response, next: NextFunc
 });
 
 surveyRouter.delete("/", extractJWT, async (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.body.surveyId);
     const surveyId = req.body.surveyId;
-
-
-
     if(surveyId) {
-        // const questions = await dbMethods.questionMethods.getQuestionBySurveyId(surveyId).catch(error => console.log(error))
-        // if (questions && questions.length > 0) {
-        //     console.log('here');
-        //     const deletedQuestions = await dbMethods.questionMethods.deleteQuestionsBySurveyId(surveyId).catch(error => console.log(error));
-        //     if(deletedQuestions) {
-        //         const surveyDeleted = await dbMethods.surveyMethods.deleteSurvey(surveyId).catch(error => console.log(error))
-        //         if(surveyDeleted) {
-        //             res.sendStatus(200);
-        //         } else {
-        //             res.sendStatus(400);
-        //         }
-        //     } else {
-        //         res.sendStatus(400);
-        //     }
-        // } else {
             const surveyDeleted = await dbMethods.surveyMethods.deleteSurvey(surveyId).catch(error => console.log(error))
             if(surveyDeleted) {
                 res.sendStatus(200);
             } else {
                 res.sendStatus(400);
             }
-    //     }
-    // }
         }});
-
 export default surveyRouter;
