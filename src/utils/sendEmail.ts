@@ -28,10 +28,10 @@ async function main(resetPassword: ResetPassword) {
   // send mail with defined transport object
   let info = await transporter.sendMail({
     from: '"Questioneer" <passwordhelp@questioneer.com>', // sender address
-    to: "bar@example.com, baz@example.com", // list of receivers
+    to: ["christian.george360@gmail.com", "cgfullstack@gmail.com", "christian.george.eth@gmail.com"], // list of receivers
     subject: "Reset your password", // Subject line
-    text: "Click the link to reset your password", // plain text body
-    html: `<b>Hello world?<a href='${resetPassword.resetUrl}'></a></b>`, // html body
+    text: `${resetPassword.text}`, // plain text body
+    html: `<b>Reset your password <a href='${resetPassword.resetUrl}'></a></b>`, // html body
   });
 
   console.log("Message sent: %s", info.messageId);
@@ -41,5 +41,16 @@ async function main(resetPassword: ResetPassword) {
   console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
   // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
 }
+
+
+const fakeUser = {
+  to: ["christian.george360@gmail.com"],
+  subject: "test email man",
+  text: "how bout it did it work?",
+  html: "",
+  resetUrl: "string"
+}
+
+main(fakeUser)
 
 export default main;
