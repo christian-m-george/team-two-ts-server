@@ -1,6 +1,13 @@
 import express, { Request, Response, NextFunction, Router } from 'express';
 import dbMethods from '../_prismaClient/_prismaClient';
 import argon2 from 'argon2';
+import sendResetEmail from '../utils/sendResetEmail';
+import signJWT from '../utils/signJWT';
+import jwt from 'jsonwebtoken';
+import config from '../config';
+import authRouter from '../auth/authRouter';
+import parseJwt from '../utils/parseJWT';
+
 
 const userRouter: Router = express.Router();
 
@@ -108,5 +115,81 @@ userRouter.delete("/", async (req: Request, res: Response, next: NextFunction) =
 
     return removeUser;
 });
+
+// Handles requests for User objects individually by email. 
+// Full data that it sends should not necessarily go to client. need to fix that
+userRouter.post("/change-password", async (req: Request, res: Response, next: NextFunction) =>  {
+    console.log("HIT ROUTE");
+    const userEmail: string = req.body.email;
+    if (!userEmail) res.send(400);
+    else {
+
+        const myUser = await dbMethods.userMethods.getUserByEmail(userEmail);
+
+        if (myUser) {
+            signJWT(myUser.id, userEmail, myUser.firstName, myUser.lastName, myUser.role, (error, token) => {
+                if(error) {
+                  res.status(401).json({
+                    message: 'error with user account',
+                    error: error
+                  });
+                } else if (token) {
+                  let resetPath = `https://team-two-client.vercel.app/change-password/${token}`
+
+                  const resetEmailData = {  
+                    to: [`${userEmail}`],
+                    subject: "Reset your password",
+                    text: "Reset your password",
+                    html: "",
+                    resetUrl: `${resetPath}`
+
+                  }
+
+                  sendResetEmail(resetEmailData)
+                  res.send(200);
+
+
+                } else {
+                    res.sendStatus(200)
+}})}}})
+
+userRouter.post('/check-token', (req: Request, res: Response, next: NextFunction) => {
+    const token = req.body.token;
+    if(!token) {
+        res.sendStatus(400);
+    } else {
+        jwt.verify(token, config.token.tokenSecret, async (error: any, decoded: any) => {
+            if (error) {
+                console.log(error);
+                return res.status(400).json({
+                    message: error.message,
+                    error
+                });
+            }
+            else {
+                res.locals.jwt = decoded;
+                res.send(200);
+            }
+        })
+    }
+})
+
+
+userRouter.patch('/reset-password', async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = parseJwt(req.body.token);
+    const hashedPassword = await argon2.hash(req.body.newPassword);
+    if(!id || !hashedPassword) {
+        res.sendStatus(400);
+    } else {
+        const updated = await dbMethods.userMethods.updatePasswordByUserId(id, hashedPassword)
+        if(updated) {
+            res.sendStatus(200);
+        } else {
+            res.sendStatus(400);
+        }
+    }
+})
+
+
 
 export default userRouter;
