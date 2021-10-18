@@ -197,6 +197,17 @@ const addQuestion = async (question: Question) => await prisma.question.create({
     throw e
 })
 
+
+// Create Response for a survey
+const addResponse = async (id: number, responses: []) => await prisma.response.create({
+    data: {
+        surveyId: id,
+        answers: responses
+    }
+}).catch((e) => {
+    throw e
+})
+
 // Delete User from db
 // const deleteUser = async (userData: User) => await prisma.survey.delete({
 //     where: {
@@ -232,7 +243,9 @@ const addQuestion = async (question: Question) => await prisma.question.create({
 
 
 
-
+const responseMethods = {
+    addResponse: addResponse
+}
 
 const questionMethods = {
     addQuestion: addQuestion,
@@ -268,7 +281,8 @@ const userMethods = {
 const dbMethods = {
     userMethods: userMethods,
     surveyMethods: surveyMethods,
-    questionMethods: questionMethods
+    questionMethods: questionMethods,
+    responseMethods: responseMethods
 }
 
 

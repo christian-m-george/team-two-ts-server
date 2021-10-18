@@ -9,7 +9,6 @@ import extractJWT from '../utils/extractJWT';
 import surveySignJWT from '../utils/surveySignJWT';
 import sendSurveyLink from '../utils/sendSurveyLink';
 import { SurveyGroup } from './surveyGroup';
-import { resourceLimits } from 'worker_threads';
 
 const surveyRouter: Router = express.Router();
 

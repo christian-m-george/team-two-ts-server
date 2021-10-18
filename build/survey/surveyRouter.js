@@ -149,7 +149,7 @@ surveyRouter.patch('/publish-survey', (req, res, next) => __awaiter(void 0, void
                 });
             }
             else if (token) {
-                let surveyPath = `http://localhost:3000/survey/${token}`;
+                let surveyPath = `https://team-two-client.vercel.app/survey/${token}`;
                 // let surveyPath = `https://team-two-client.vercel.app/survey/${token}`
                 const surveys = {
                     to: emails,
@@ -198,14 +198,7 @@ surveyRouter.post('/verify', (req, res, next) => {
                     });
                 }
                 else {
-                    console.log('must be missing one of these-- Email: ' + emails + ", ID: " + id + ", survey: " + survey + ", questions:" + questions)
-                    const error = {
-                        id,
-                        emails,
-                        survey,
-                        questions
-                    }
-                    res.json(error);
+                    res.json("unable to fetch survey and questions");
                 }
             }
         }));

@@ -33,6 +33,7 @@ model Survey {
   isRandom  Boolean
   numQuestions  Int 
   questions Question[] @relation()
+  responses Response[] @relation()
 }
 
 model Question {
@@ -45,6 +46,15 @@ model Question {
   questionType  String  @db.VarChar(30)
   answers   String[]
   order     Int
+}
+
+model Response {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  surveyId  Int      
+  survey    Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  answers   String[]
 }
 
 enum Role {
