@@ -146,7 +146,7 @@ surveyRouter.patch('/publish-survey', async (req: Request, res: Response, next: 
                 error: error
               });
             } else if (token) {
-                let surveyPath = `http://localhost:3000/survey/${token}`
+                let surveyPath = `https://team-two-client.vercel.app/survey/${token}`
                 // let surveyPath = `https://team-two-client.vercel.app/survey/${token}`
                 const surveys = {
                     to: emails,
