@@ -52,6 +52,18 @@ const updateEmail = async (userData: User, newEmail: string) => await prisma.use
 })
 
 // Update User's password in db
+const updatePasswordByUserId = async (id: number, newPassword: string) => await prisma.user.update({
+    where: {
+        id: id
+    },
+    data: {
+        password: newPassword
+    }
+}).catch((e) => {
+    throw e
+})
+
+// Update User's password in db
 const updatePassword = async (userData: User, newPassword: string) => await prisma.user.update({
     where: {
         email: userData.email
@@ -160,6 +172,18 @@ const createInitialSurvey = async (surveyData: SurveyData) => await prisma.surve
     throw e
 })
 
+// Alter a field on the a survey in db
+const publishSurvey = async (id: number, published: boolean) => await prisma.survey.update({
+    where: {
+        id: id
+    },
+    data: {
+        published: published
+    }
+}).catch((e) => {
+    throw e
+})
+
 // Delete User from db
 const addQuestion = async (question: Question) => await prisma.question.create({
     data: {
@@ -227,6 +251,7 @@ const surveyMethods = {
     getSurveyByUser: getSurveyByUser,
     getSurveyById: getSurveyById,
     deleteSurvey: deleteSurvey,
+    publishSurvey: publishSurvey
 }
 
 // Exports all the user prisma methods
@@ -236,7 +261,8 @@ const userMethods = {
     createUser: createUser,
     deleteUser: deleteUser,
     updateEmail: updateEmail,
-    updatePassword: updatePassword
+    updatePassword: updatePassword,
+    updatePasswordByUserId: updatePasswordByUserId
 }
 
 const dbMethods = {
