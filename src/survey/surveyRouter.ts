@@ -6,13 +6,17 @@ import config from '../config';
 import UserPayload from '../user/userPayload';
 import { SurveyData } from './survey';
 import extractJWT from '../utils/extractJWT';
+import surveySignJWT from '../utils/surveySignJWT';
+import sendSurveyLink from '../utils/sendSurveyLink';
+import { SurveyGroup } from './surveyGroup';
+import { resourceLimits } from 'worker_threads';
 
 const surveyRouter: Router = express.Router();
 
 surveyRouter.get("/", (req: Request, res: Response, next: NextFunction) => {
 
     // console.log(req.body + 'survey by survey id route accessed');
-    // res.send('survey by survey id route accessed');
+    res.json('get accessed');
 })
 
 
@@ -126,4 +130,79 @@ surveyRouter.delete("/", extractJWT, async (req: Request, res: Response, next: N
                 res.sendStatus(400);
             }
         }});
+
+surveyRouter.patch('/publish-survey', async (req: Request, res: Response, next: NextFunction) => {
+    console.log('hit route');
+    const surveyGroup: SurveyGroup = req.body;
+    const {id, emails} = surveyGroup;
+    if (!id || !emails ||emails.length < 1) {
+        res.sendStatus(400)
+    } else {
+
+        surveySignJWT(id, emails, (error, token) => {
+            if(error) {
+              res.sendStatus(401).json({
+                message: 'unauthorized',
+                error: error
+              });
+            } else if (token) {
+                let surveyPath = `http://localhost:3000/survey/${token}`
+                // let surveyPath = `https://team-two-client.vercel.app/survey/${token}`
+                const surveys = {
+                    to: emails,
+                    subject: "You've been invited to take a survey",
+                    text: "You've been invited to take a survey",
+                    surveyUrl: `${surveyPath}`
+                }
+                sendSurveyLink(surveys)
+                const published = true;
+                res.sendStatus(200);
+            }
+          });
+        
+
+        res.sendStatus(200);    
+    }    
+})
+
+
+surveyRouter.post('/verify', (req: Request, res: Response, next: NextFunction) => {
+    console.log('hit route to check survey')
+    const token = req.body.token;
+    if(!token) {
+        res.sendStatus(400);
+    } else {
+        jwt.verify(token, config.token.surveySecret, async (error: any, decoded: any) => {
+            if (error) {
+                console.log(error);
+                return res.status(400).json({
+                    message: error.message,
+                    error
+                });
+            }
+            else {
+                
+                function parseJwt (token: string): SurveyGroup {
+                    const payload = token.split('.')[1];
+                    const payLoadObj = JSON.parse(Buffer.from(payload, 'base64').toString());
+                    return payLoadObj;
+                }
+
+                const {id, emails} = parseJwt(token)
+                const survey = await dbMethods.surveyMethods.getSurveyById(id);
+                const questions = await dbMethods.questionMethods.getQuestionBySurveyId(id);
+
+                if(id && emails && survey && questions) {
+                    res.json({
+                        id,
+                        emails,
+                        survey,
+                        questions
+                    })
+                } else {
+                    res.json("unable to fetch survey and questions")
+    }}})}
+})
+
+
 export default surveyRouter;
