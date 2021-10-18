@@ -198,7 +198,14 @@ surveyRouter.post('/verify', (req, res, next) => {
                     });
                 }
                 else {
-                    res.json("unable to fetch survey and questions");
+                    console.log('must be missing one of these-- Email: ' + emails + ", ID: " + id + ", survey: " + survey + ", questions:" + questions)
+                    const error = {
+                        id,
+                        emails,
+                        survey,
+                        questions
+                    }
+                    res.json(error);
                 }
             }
         }));
