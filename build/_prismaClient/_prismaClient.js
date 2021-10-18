@@ -64,6 +64,19 @@ const updateEmail = (userData, newEmail) => __awaiter(void 0, void 0, void 0, fu
     });
 });
 // Update User's password in db
+const updatePasswordByUserId = (id, newPassword) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield prisma.user.update({
+        where: {
+            id: id
+        },
+        data: {
+            password: newPassword
+        }
+    }).catch((e) => {
+        throw e;
+    });
+});
+// Update User's password in db
 const updatePassword = (userData, newPassword) => __awaiter(void 0, void 0, void 0, function* () {
     return yield prisma.user.update({
         where: {
@@ -179,6 +192,19 @@ const createInitialSurvey = (surveyData) => __awaiter(void 0, void 0, void 0, fu
         throw e;
     });
 });
+// Alter a field on the a survey in db
+const publishSurvey = (id, published) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield prisma.survey.update({
+        where: {
+            id: id
+        },
+        data: {
+            published: published
+        }
+    }).catch((e) => {
+        throw e;
+    });
+});
 // Delete User from db
 const addQuestion = (question) => __awaiter(void 0, void 0, void 0, function* () {
     return yield prisma.question.create({
@@ -238,6 +264,7 @@ const surveyMethods = {
     getSurveyByUser: getSurveyByUser,
     getSurveyById: getSurveyById,
     deleteSurvey: deleteSurvey,
+    publishSurvey: publishSurvey
 };
 // Exports all the user prisma methods
 const userMethods = {
@@ -246,7 +273,8 @@ const userMethods = {
     createUser: createUser,
     deleteUser: deleteUser,
     updateEmail: updateEmail,
-    updatePassword: updatePassword
+    updatePassword: updatePassword,
+    updatePasswordByUserId: updatePasswordByUserId
 };
 const dbMethods = {
     userMethods: userMethods,

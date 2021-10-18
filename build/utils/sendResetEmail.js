@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const nodemailer_1 = __importDefault(require("nodemailer"));
 // async..await is not allowed in global scope, must use a wrapper
-function main(resetPassword) {
+function sendResetEmail(resetPassword) {
     return __awaiter(this, void 0, void 0, function* () {
         // create reusable transporter object using the default SMTP transport
         let transporter = nodemailer_1.default.createTransport({
@@ -29,10 +29,10 @@ function main(resetPassword) {
         // send mail with defined transport object
         let info = yield transporter.sendMail({
             from: '"Questioneer" <passwordhelp@questioneer.com>',
-            to: ["christian.george360@gmail.com", "cgfullstack@gmail.com", "christian.george.eth@gmail.com"],
-            subject: "Reset your password",
+            to: resetPassword.to,
+            subject: `${resetPassword.subject}`,
             text: `${resetPassword.text}`,
-            html: `<b>Reset your password <a href='${resetPassword.resetUrl}'></a></b>`, // html body
+            html: `<html><b>Reset your password <a href='${resetPassword.resetUrl}'>Click here to reset your password</a></b></html>`, // html body
         });
         console.log("Message sent: %s", info.messageId);
         // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
@@ -48,5 +48,4 @@ const fakeUser = {
     html: "",
     resetUrl: "string"
 };
-main(fakeUser);
-exports.default = main;
+exports.default = sendResetEmail;

@@ -15,6 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const _prismaClient_1 = __importDefault(require("../_prismaClient/_prismaClient"));
 const argon2_1 = __importDefault(require("argon2"));
+const sendResetEmail_1 = __importDefault(require("../utils/sendResetEmail"));
+const signJWT_1 = __importDefault(require("../utils/signJWT"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const config_1 = __importDefault(require("../config"));
+const parseJWT_1 = __importDefault(require("../utils/parseJWT"));
 const userRouter = express_1.default.Router();
 // Handles requests for User objects individually by email. 
 // Full data that it sends should not necessarily go to client. need to fix that
@@ -113,5 +118,78 @@ userRouter.delete("/", (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         res.send("user not found or something else went wrong lol");
     });
     return removeUser;
+}));
+// Handles requests for User objects individually by email. 
+// Full data that it sends should not necessarily go to client. need to fix that
+userRouter.post("/change-password", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("HIT ROUTE");
+    const userEmail = req.body.email;
+    if (!userEmail)
+        res.send(400);
+    else {
+        const myUser = yield _prismaClient_1.default.userMethods.getUserByEmail(userEmail);
+        if (myUser) {
+            (0, signJWT_1.default)(myUser.id, userEmail, myUser.firstName, myUser.lastName, myUser.role, (error, token) => {
+                if (error) {
+                    res.status(401).json({
+                        message: 'error with user account',
+                        error: error
+                    });
+                }
+                else if (token) {
+                    let resetPath = `https://team-two-client.vercel.app/change-password/${token}`;
+                    const resetEmailData = {
+                        to: [`${userEmail}`],
+                        subject: "Reset your password",
+                        text: "Reset your password",
+                        html: "",
+                        resetUrl: `${resetPath}`
+                    };
+                    (0, sendResetEmail_1.default)(resetEmailData);
+                    res.send(200);
+                }
+                else {
+                    res.sendStatus(200);
+                }
+            });
+        }
+    }
+}));
+userRouter.post('/check-token', (req, res, next) => {
+    const token = req.body.token;
+    if (!token) {
+        res.sendStatus(400);
+    }
+    else {
+        jsonwebtoken_1.default.verify(token, config_1.default.token.tokenSecret, (error, decoded) => __awaiter(void 0, void 0, void 0, function* () {
+            if (error) {
+                console.log(error);
+                return res.status(400).json({
+                    message: error.message,
+                    error
+                });
+            }
+            else {
+                res.locals.jwt = decoded;
+                res.send(200);
+            }
+        }));
+    }
+});
+userRouter.patch('/reset-password', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = (0, parseJWT_1.default)(req.body.token);
+    const hashedPassword = yield argon2_1.default.hash(req.body.newPassword);
+    if (!id || !hashedPassword) {
+        res.sendStatus(400);
+    }
+    else {
+        const updated = yield _prismaClient_1.default.userMethods.updatePasswordByUserId(id, hashedPassword);
+        if (updated) {
+            res.sendStatus(200);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    }
 }));
 exports.default = userRouter;

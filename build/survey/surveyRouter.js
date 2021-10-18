@@ -17,10 +17,12 @@ const _prismaClient_1 = __importDefault(require("../_prismaClient/_prismaClient"
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../config"));
 const extractJWT_1 = __importDefault(require("../utils/extractJWT"));
+const surveySignJWT_1 = __importDefault(require("../utils/surveySignJWT"));
+const sendSurveyLink_1 = __importDefault(require("../utils/sendSurveyLink"));
 const surveyRouter = express_1.default.Router();
 surveyRouter.get("/", (req, res, next) => {
     // console.log(req.body + 'survey by survey id route accessed');
-    // res.send('survey by survey id route accessed');
+    res.json('get accessed');
 });
 surveyRouter.get("/all", extractJWT_1.default, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('get all route accessed');
@@ -34,7 +36,8 @@ surveyRouter.get("/all", extractJWT_1.default, (req, res, next) => __awaiter(voi
     if (hash) {
         const { id } = parseJwt(hash);
         const surveys = yield _prismaClient_1.default.surveyMethods.getSurveyByUser(id);
-        if (surveys.length > 1) {
+        console.log(surveys);
+        if (surveys.length >= 1) {
             return res.json(surveys);
         }
         else {
@@ -130,4 +133,75 @@ surveyRouter.delete("/", extractJWT_1.default, (req, res, next) => __awaiter(voi
         }
     }
 }));
+surveyRouter.patch('/publish-survey', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('hit route');
+    const surveyGroup = req.body;
+    const { id, emails } = surveyGroup;
+    if (!id || !emails || emails.length < 1) {
+        res.sendStatus(400);
+    }
+    else {
+        (0, surveySignJWT_1.default)(id, emails, (error, token) => {
+            if (error) {
+                res.sendStatus(401).json({
+                    message: 'unauthorized',
+                    error: error
+                });
+            }
+            else if (token) {
+                let surveyPath = `http://localhost:3000/survey/${token}`;
+                // let surveyPath = `https://team-two-client.vercel.app/survey/${token}`
+                const surveys = {
+                    to: emails,
+                    subject: "You've been invited to take a survey",
+                    text: "You've been invited to take a survey",
+                    surveyUrl: `${surveyPath}`
+                };
+                (0, sendSurveyLink_1.default)(surveys);
+                const published = true;
+                res.sendStatus(200);
+            }
+        });
+        res.sendStatus(200);
+    }
+}));
+surveyRouter.post('/verify', (req, res, next) => {
+    console.log('hit route to check survey');
+    const token = req.body.token;
+    if (!token) {
+        res.sendStatus(400);
+    }
+    else {
+        jsonwebtoken_1.default.verify(token, config_1.default.token.surveySecret, (error, decoded) => __awaiter(void 0, void 0, void 0, function* () {
+            if (error) {
+                console.log(error);
+                return res.status(400).json({
+                    message: error.message,
+                    error
+                });
+            }
+            else {
+                function parseJwt(token) {
+                    const payload = token.split('.')[1];
+                    const payLoadObj = JSON.parse(Buffer.from(payload, 'base64').toString());
+                    return payLoadObj;
+                }
+                const { id, emails } = parseJwt(token);
+                const survey = yield _prismaClient_1.default.surveyMethods.getSurveyById(id);
+                const questions = yield _prismaClient_1.default.questionMethods.getQuestionBySurveyId(id);
+                if (id && emails && survey && questions) {
+                    res.json({
+                        id,
+                        emails,
+                        survey,
+                        questions
+                    });
+                }
+                else {
+                    res.json("unable to fetch survey and questions");
+                }
+            }
+        }));
+    }
+});
 exports.default = surveyRouter;
