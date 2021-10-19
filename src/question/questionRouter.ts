@@ -53,6 +53,7 @@ questionRouter.get("/all", extractJWT,  async (req: Request, res: Response, next
 questionRouter.post("/", extractJWT, async (req: Request, res: Response, next: NextFunction) => {
     const surveyId = req.body.surveyId;
     const order = req.body.num;
+    const qType = req.body.questionType;
     console.log(surveyId + " THIS IS SURVEY ID" + " THIS IS THE ORDER " + order);
     const existingQuestions = await dbMethods.questionMethods.getQuestionBySurveyIdAndOrderFrag(surveyId, order);
     console.log(existingQuestions.map(i => JSON.stringify(i)) + " THIS IS QUESTSETS");
@@ -71,6 +72,33 @@ questionRouter.post("/", extractJWT, async (req: Request, res: Response, next: N
     //     }
     //     return false;
     // }
+    if(req.body.questionType === 'comment box') {
+        console.log(JSON.stringify(req.body));
+        const question: Question = {
+            surveyId: req.body.surveyId,
+            order: req.body.num,
+            questionType: req.body.questionType,
+            questionText: req.body.questionText,
+            answers: []
+        }
+        if(existingQuestions.length > 0) {
+            console.log("YES IT EXISTS (COMMENT BOX)");
+            const updatedQuestion = dbMethods.questionMethods.updateQuestionByIdAndOrder(question);
+            return res.json(updatedQuestion);
+        } else {
+            console.log(" ELSE I GUESS (COMMENT BOX)");
+            const questionPosted = await dbMethods.questionMethods.addQuestion(question);
+            if (questionPosted) {
+                console.log(questionPosted);
+                return res.json(questionPosted);
+            } else {
+                return res.status(400).json("not posted")
+            }
+        }
+        
+    }
+    else if(req.body.questionType === 'multiple choice') {
+
 
 
     let array: string[] = [];
@@ -88,28 +116,12 @@ questionRouter.post("/", extractJWT, async (req: Request, res: Response, next: N
         answers: array
     }
 
-
-
-
     if(existingQuestions.length > 0) {
         console.log("YES IT EXISTS");
         const updatedQuestion = dbMethods.questionMethods.updateQuestionByIdAndOrder(question);
         return res.json(updatedQuestion);
     } else {
         console.log(" ELSE I GUESS");
-        // let array: string[] = [];
-    
-        // req.body.answerFieldInputs.map((a: any) => {
-        //     console.log(a + " " + JSON.stringify(a));
-        // array.push(a.value)});
-    
-        // const question: Question = {
-        //     surveyId: req.body.surveyId,
-        //     order: req.body.num,
-        //     questionType: req.body.questionType,
-        //     questionText: req.body.questionInput,
-        //     answers: array
-        // }
         const questionPosted = await dbMethods.questionMethods.addQuestion(question);
         if (questionPosted) {
             console.log(questionPosted);
@@ -118,6 +130,7 @@ questionRouter.post("/", extractJWT, async (req: Request, res: Response, next: N
             return res.status(400).json("not posted")
         }
     }
+}
 });
 
 questionRouter.patch("/", extractJWT, (req: Request, res: Response, next: NextFunction) => {
