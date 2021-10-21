@@ -6,5 +6,6 @@ export interface SurveyData {
     singleQuestion: boolean,
     isPrivate: boolean,
     isRandom: boolean,
+    requiresIdentifiers: boolean,
     numQuestions: number
 }
