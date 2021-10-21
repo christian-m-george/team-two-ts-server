@@ -9,9 +9,14 @@ const REFRESH_TOKEN_EXPIRE_TIME = process.env.REFRESH_TOKEN_EXPIRE_TIME || 36000
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'refreshtokensecretlol!!!';
 const SURVEY_TOKEN_EXPIRE_TIME = process.env.REFRESH_TOKEN_EXPIRE_TIME || 3600000;
 const SURVEY_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'dufahds@&*#EHQBFUESbfuaesb!!!';
+const EMAIL_HOST = process.env.EMAIL_HOST || "smtp.gmail.com";
+const EMAIL_PORT = process.env.EMAIL_PORT || 587;
+const EMAIL_AUTH = process.env.EMAIL_AUTH || "teamtwoagile@gmail.com"; // generated ethereal user
+const EMAIL_PASS = process.env.EMAIL_PASS || "Teamtwoagile1!";
 const config = {
     NODE_ENV: NODE_ENV,
     PORT: PORT,
+    mail: "",
     token: {
         expireTime: SERVER_TOKEN_EXPIRE_TIME,
         issuer: SERVER_TOKEN_ISSUER,
@@ -20,6 +25,12 @@ const config = {
         refreshExpireTime: REFRESH_TOKEN_EXPIRE_TIME,
         surveySecret: SURVEY_TOKEN_SECRET,
         surveyExpireTime: SURVEY_TOKEN_EXPIRE_TIME
+    },
+    email: {
+        emailHost: EMAIL_HOST,
+        emailPort: EMAIL_PORT,
+        emailAuth: EMAIL_AUTH,
+        emailPass: EMAIL_PASS
     },
     VERCEL_URL: `https://team-two-client.vercel.app`,
     REACT_URL: `http://localhost:3000`

@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const nodemailer_1 = __importDefault(require("nodemailer"));
 // async..await is not allowed in global scope, must use a wrapper
-function sendSurveyLink(surveyGroup) {
+function sendQRLink(surveyGroup) {
     return __awaiter(this, void 0, void 0, function* () {
         // create reusable transporter object using the default SMTP transport
         let transporter = nodemailer_1.default.createTransport({
@@ -32,11 +32,11 @@ function sendSurveyLink(surveyGroup) {
             to: surveyGroup.to,
             subject: `${surveyGroup.subject}`,
             text: `${surveyGroup.text}`,
-            html: `<html><b>You've been invited to take a survey <a href='${surveyGroup.surveyUrl}'>Click here to see the survey</a></b></html>`, // html body
+            html: `<html><b>You've been invited to take a survey <img src='${surveyGroup.surveyUrl}' alt='qrcode' /></b></html>`, // html body
         });
         console.log("Message sent: %s", info.messageId);
         // Preview only available when sending through an Ethereal account
-        // console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+        console.log("Preview URL: %s", nodemailer_1.default.getTestMessageUrl(info));
     });
 }
-exports.default = sendSurveyLink;
+exports.default = sendQRLink;

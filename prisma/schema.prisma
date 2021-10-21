@@ -31,6 +31,7 @@ model Survey {
   singleQuestion Boolean
   isPrivate Boolean
   isRandom  Boolean
+  requiresIdentifiers Boolean
   numQuestions  Int 
   questions Question[] @relation()
   responses Response[] @relation()

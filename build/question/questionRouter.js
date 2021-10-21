@@ -60,6 +60,7 @@ questionRouter.get("/all", extractJWT_1.default, (req, res, next) => __awaiter(v
 questionRouter.post("/", extractJWT_1.default, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const surveyId = req.body.surveyId;
     const order = req.body.num;
+    const qType = req.body.questionType;
     console.log(surveyId + " THIS IS SURVEY ID" + " THIS IS THE ORDER " + order);
     const existingQuestions = yield _prismaClient_1.default.questionMethods.getQuestionBySurveyIdAndOrderFrag(surveyId, order);
     console.log(existingQuestions.map(i => JSON.stringify(i)) + " THIS IS QUESTSETS");
@@ -77,44 +78,61 @@ questionRouter.post("/", extractJWT_1.default, (req, res, next) => __awaiter(voi
     //     }
     //     return false;
     // }
-    let array = [];
-    req.body.answerFieldInputs.map((a) => {
-        console.log(a + " " + JSON.stringify(a));
-        array.push(a.value);
-    });
-    // console.log("THIS IS ANSWERS   " + answers)
-    const question = {
-        surveyId: req.body.surveyId,
-        order: req.body.num,
-        questionType: req.body.questionType,
-        questionText: req.body.questionInput,
-        answers: array
-    };
-    if (existingQuestions.length > 0) {
-        console.log("YES IT EXISTS");
-        const updatedQuestion = _prismaClient_1.default.questionMethods.updateQuestionByIdAndOrder(question);
-        return res.json(updatedQuestion);
-    }
-    else {
-        console.log(" ELSE I GUESS");
-        // let array: string[] = [];
-        // req.body.answerFieldInputs.map((a: any) => {
-        //     console.log(a + " " + JSON.stringify(a));
-        // array.push(a.value)});
-        // const question: Question = {
-        //     surveyId: req.body.surveyId,
-        //     order: req.body.num,
-        //     questionType: req.body.questionType,
-        //     questionText: req.body.questionInput,
-        //     answers: array
-        // }
-        const questionPosted = yield _prismaClient_1.default.questionMethods.addQuestion(question);
-        if (questionPosted) {
-            console.log(questionPosted);
-            return res.json(questionPosted);
+    if (req.body.questionType === 'comment box') {
+        console.log(JSON.stringify(req.body));
+        const question = {
+            surveyId: req.body.surveyId,
+            order: req.body.num,
+            questionType: req.body.questionType,
+            questionText: req.body.questionText,
+            answers: []
+        };
+        if (existingQuestions.length > 0) {
+            console.log("YES IT EXISTS (COMMENT BOX)");
+            const updatedQuestion = _prismaClient_1.default.questionMethods.updateQuestionByIdAndOrder(question);
+            return res.json(updatedQuestion);
         }
         else {
-            return res.status(400).json("not posted");
+            console.log(" ELSE I GUESS (COMMENT BOX)");
+            const questionPosted = yield _prismaClient_1.default.questionMethods.addQuestion(question);
+            if (questionPosted) {
+                console.log(questionPosted);
+                return res.json(questionPosted);
+            }
+            else {
+                return res.status(400).json("not posted");
+            }
+        }
+    }
+    else if (req.body.questionType === 'multiple choice') {
+        let array = [];
+        req.body.answerFieldInputs.map((a) => {
+            console.log(a + " " + JSON.stringify(a));
+            array.push(a.value);
+        });
+        // console.log("THIS IS ANSWERS   " + answers)
+        const question = {
+            surveyId: req.body.surveyId,
+            order: req.body.num,
+            questionType: req.body.questionType,
+            questionText: req.body.questionInput,
+            answers: array
+        };
+        if (existingQuestions.length > 0) {
+            console.log("YES IT EXISTS");
+            const updatedQuestion = _prismaClient_1.default.questionMethods.updateQuestionByIdAndOrder(question);
+            return res.json(updatedQuestion);
+        }
+        else {
+            console.log(" ELSE I GUESS");
+            const questionPosted = yield _prismaClient_1.default.questionMethods.addQuestion(question);
+            if (questionPosted) {
+                console.log(questionPosted);
+                return res.json(questionPosted);
+            }
+            else {
+                return res.status(400).json("not posted");
+            }
         }
     }
 }));

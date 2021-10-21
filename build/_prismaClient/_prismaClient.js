@@ -186,6 +186,7 @@ const createInitialSurvey = (surveyData) => __awaiter(void 0, void 0, void 0, fu
             singleQuestion: surveyData.singleQuestion,
             isPrivate: surveyData.isPrivate,
             isRandom: surveyData.isRandom,
+            requiresIdentifiers: surveyData.requiresIdentifiers,
             numQuestions: surveyData.numQuestions
         }
     }).catch((e) => {
@@ -214,6 +215,26 @@ const addQuestion = (question) => __awaiter(void 0, void 0, void 0, function* ()
             questionText: question.questionText,
             order: question.order,
             answers: question.answers
+        }
+    }).catch((e) => {
+        throw e;
+    });
+});
+// Create Response for a survey
+const addResponse = (id, responses) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield prisma.response.create({
+        data: {
+            surveyId: id,
+            answers: responses
+        }
+    }).catch((e) => {
+        throw e;
+    });
+});
+const getResponsesBySurveyId = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield prisma.response.findMany({
+        where: {
+            surveyId: id
         }
     }).catch((e) => {
         throw e;
@@ -249,6 +270,10 @@ const addQuestion = (question) => __awaiter(void 0, void 0, void 0, function* ()
 // }).catch((e) => {
 //     throw e
 // })
+const responseMethods = {
+    addResponse: addResponse,
+    getResponsesBySurveyId: getResponsesBySurveyId,
+};
 const questionMethods = {
     addQuestion: addQuestion,
     getAllQuestionsById: getAllQuestionsById,
@@ -279,6 +304,7 @@ const userMethods = {
 const dbMethods = {
     userMethods: userMethods,
     surveyMethods: surveyMethods,
-    questionMethods: questionMethods
+    questionMethods: questionMethods,
+    responseMethods: responseMethods
 };
 exports.default = dbMethods;

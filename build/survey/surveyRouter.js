@@ -25,7 +25,7 @@ surveyRouter.get("/", (req, res, next) => {
     res.json('get accessed');
 });
 surveyRouter.get("/all", extractJWT_1.default, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('get all route accessed');
+    // console.log('get all route accessed');
     const cookie = req.cookies;
     const hash = cookie.acctok;
     function parseJwt(token) {
@@ -36,7 +36,7 @@ surveyRouter.get("/all", extractJWT_1.default, (req, res, next) => __awaiter(voi
     if (hash) {
         const { id } = parseJwt(hash);
         const surveys = yield _prismaClient_1.default.surveyMethods.getSurveyByUser(id);
-        console.log(surveys);
+        // console.log(surveys);
         if (surveys.length >= 1) {
             return res.json(surveys);
         }
@@ -103,6 +103,7 @@ surveyRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, fun
                     singleQuestion: surveyFormData.singleQuestion,
                     isPrivate: surveyFormData.isPrivate,
                     isRandom: surveyFormData.isRandom,
+                    requiresIdentifiers: surveyFormData.requiresIdentifiers,
                     numQuestions: stringToNumber(surveyFormData.numQuestions)
                 };
                 // console.log( JSON.stringify(surveyFormObject) + " THIS IS SURVEY FORM DATA");
@@ -133,7 +134,7 @@ surveyRouter.delete("/", extractJWT_1.default, (req, res, next) => __awaiter(voi
         }
     }
 }));
-surveyRouter.patch('/publish-survey', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+surveyRouter.patch('/publish-survey', extractJWT_1.default, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('hit route');
     const surveyGroup = req.body;
     const { id, emails } = surveyGroup;
@@ -150,19 +151,23 @@ surveyRouter.patch('/publish-survey', (req, res, next) => __awaiter(void 0, void
             }
             else if (token) {
                 let surveyPath = `https://team-two-client.vercel.app/survey/${token}`;
-                // let surveyPath = `https://team-two-client.vercel.app/survey/${token}`
                 const surveys = {
                     to: emails,
                     subject: "You've been invited to take a survey",
                     text: "You've been invited to take a survey",
                     surveyUrl: `${surveyPath}`
                 };
+                res.status(200).json('survey emailed');
                 (0, sendSurveyLink_1.default)(surveys);
-                const published = true;
-                res.sendStatus(200);
             }
         });
-        res.sendStatus(200);
+        const publishSurvey = yield _prismaClient_1.default.surveyMethods.publishSurvey(id, true);
+        if (publishSurvey) {
+            console.log('published');
+        }
+        else {
+            console.log('email may have been sent, but survey was not published');
+        }
     }
 }));
 surveyRouter.post('/verify', (req, res, next) => {

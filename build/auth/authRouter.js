@@ -91,6 +91,9 @@ authRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                 });
             }
         }
+        else {
+            res.status(400).send('unable to find user');
+        }
     }
 }));
 exports.default = authRouter;
