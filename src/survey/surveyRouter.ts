@@ -20,7 +20,7 @@ surveyRouter.get("/", (req: Request, res: Response, next: NextFunction) => {
 
 
 surveyRouter.get("/all", extractJWT, async (req: Request, res: Response, next: NextFunction) => {
-    console.log('get all route accessed');
+    // console.log('get all route accessed');
     const cookie: Cookie = req.cookies;
     const hash = cookie.acctok;
     function parseJwt (token: string): UserPayload {
@@ -31,7 +31,7 @@ surveyRouter.get("/all", extractJWT, async (req: Request, res: Response, next: N
     if(hash) {
         const { id }  = parseJwt(hash);
         const surveys = await dbMethods.surveyMethods.getSurveyByUser(id);
-        console.log(surveys);
+        // console.log(surveys);
         if (surveys.length >= 1) {
             return res.json(surveys);
         } else {
@@ -100,6 +100,7 @@ surveyRouter.post("/", async (req: Request, res: Response, next: NextFunction) =
                     singleQuestion: surveyFormData.singleQuestion,
                     isPrivate: surveyFormData.isPrivate,
                     isRandom: surveyFormData.isRandom,
+                    requiresIdentifiers: surveyFormData.requiresIdentifiers,
                     numQuestions: stringToNumber(surveyFormData.numQuestions)
                 }
                 // console.log( JSON.stringify(surveyFormObject) + " THIS IS SURVEY FORM DATA");
@@ -130,7 +131,7 @@ surveyRouter.delete("/", extractJWT, async (req: Request, res: Response, next: N
             }
         }});
 
-surveyRouter.patch('/publish-survey', async (req: Request, res: Response, next: NextFunction) => {
+surveyRouter.patch('/publish-survey', extractJWT, async (req: Request, res: Response, next: NextFunction) => {
     console.log('hit route');
     const surveyGroup: SurveyGroup = req.body;
     const {id, emails} = surveyGroup;
@@ -145,22 +146,23 @@ surveyRouter.patch('/publish-survey', async (req: Request, res: Response, next: 
                 error: error
               });
             } else if (token) {
-                let surveyPath = `https://team-two-client.vercel.app/survey/${token}`
-                // let surveyPath = `https://team-two-client.vercel.app/survey/${token}`
+                let surveyPath = `https://team-two-client.vercel.app/survey/${token}`;
                 const surveys = {
                     to: emails,
                     subject: "You've been invited to take a survey",
                     text: "You've been invited to take a survey",
                     surveyUrl: `${surveyPath}`
                 }
+                res.status(200).json('survey emailed');
                 sendSurveyLink(surveys)
-                const published = true;
-                res.sendStatus(200);
             }
-          });
-        
-
-        res.sendStatus(200);    
+        });
+        const publishSurvey = await dbMethods.surveyMethods.publishSurvey(id, true);
+        if (publishSurvey) {
+            console.log('published')
+        } else {
+            console.log('email may have been sent, but survey was not published');
+        }
     }    
 })
 
