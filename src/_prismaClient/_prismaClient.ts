@@ -166,6 +166,7 @@ const createInitialSurvey = async (surveyData: SurveyData) => await prisma.surve
         singleQuestion: surveyData.singleQuestion,
         isPrivate: surveyData.isPrivate,
         isRandom: surveyData.isRandom,
+        requiresIdentifiers: surveyData.requiresIdentifiers,
         numQuestions: surveyData.numQuestions
 
 }}).catch((e) => {
@@ -208,6 +209,14 @@ const addResponse = async (id: number, responses: []) => await prisma.response.c
     throw e
 })
 
+const getResponsesBySurveyId = async(id: number) => await prisma.response.findMany({
+    where: {
+        surveyId: id
+    }
+}).catch((e) => {
+    throw e
+})
+
 // Delete User from db
 // const deleteUser = async (userData: User) => await prisma.survey.delete({
 //     where: {
@@ -244,7 +253,8 @@ const addResponse = async (id: number, responses: []) => await prisma.response.c
 
 
 const responseMethods = {
-    addResponse: addResponse
+    addResponse: addResponse,
+    getResponsesBySurveyId: getResponsesBySurveyId,
 }
 
 const questionMethods = {
