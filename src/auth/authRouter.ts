@@ -18,9 +18,11 @@ authRouter.post("/", async (req: Request, res: Response, next: NextFunction) => 
   
   const userEmail: string = req.body.email;
   const userPassword: string = req.body.password;
+
   if (!userEmail || !userPassword || userEmail.length<=4 || userPassword.length <= 6) {
     return res.sendStatus(400).json('missing username or password');
   }
+
   else {
     
       const myUser: UserPayloadDTO | null = await dbMethods.userMethods.getUserByEmail(userEmail);
@@ -79,6 +81,8 @@ authRouter.post("/", async (req: Request, res: Response, next: NextFunction) => 
             err
           })
         }
+      } else {
+        res.status(400).send('unable to find user');
       }
   }
 });
