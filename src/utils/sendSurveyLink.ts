@@ -30,10 +30,12 @@ async function sendSurveyLink(surveyGroup: SurveyLink) {
     html: `<html><b>You've been invited to take a survey <a href='${surveyGroup.surveyUrl}'>Click here to see the survey</a></b></html>`, // html body
   });
 
+
+
   console.log("Message sent: %s", info.messageId);
 
   // Preview only available when sending through an Ethereal account
-  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+  // console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
 }
 
 export default sendSurveyLink;
