@@ -14,7 +14,7 @@ const app: Application = express();
 
 app.use(cookieParser())
 app.use(cors({
-    origin: config.VERCEL_URL,
+    origin: config.REACT_URL,
     credentials: true,
     
   }));

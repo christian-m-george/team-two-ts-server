@@ -1,5 +1,5 @@
 import QRCode from 'qrcode'
-import sendQRLink from './sendQRCode'
+import sendQRLink from './sendQRLink'
 
 // With promises
 // QRCode.toDataURL('I am a pony!')
@@ -14,25 +14,11 @@ import sendQRLink from './sendQRCode'
 let url = 'http://localhost3000:/survey/'
 // With async/await
 const generateQR = async (text: string) => {
-  try {
-    await QRCode.toDataURL(text).then(data => {
-      
-      const myObj = {
-        to: ['christian.george360@gmail.com'],
-        subject: "QR TEST",
-        text: "",
-        surveyUrl: `${data}`
-      }
-      sendQRLink(myObj).catch(err => 
-          console.log(err)
-    )
-    })
-  } catch (err) {
-    console.error(err)
-  }
+    const response = await QRCode.toDataURL(text).then(data => data).catch(err => err)
+    return response;
 }
 
-generateQR(url).catch(err => console.log(err));
+generateQR(url).then(data => sendQRLink({QRUrl: `${data}`}));
 
 
 export default generateQR;

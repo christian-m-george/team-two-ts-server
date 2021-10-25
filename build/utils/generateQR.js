@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const qrcode_1 = __importDefault(require("qrcode"));
-const sendQRCode_1 = __importDefault(require("./sendQRCode"));
+const sendQRLink_1 = __importDefault(require("./sendQRLink"));
 // With promises
 // QRCode.toDataURL('I am a pony!')
 //   .then(url => {
@@ -25,20 +25,8 @@ const sendQRCode_1 = __importDefault(require("./sendQRCode"));
 let url = 'http://localhost3000:/survey/';
 // With async/await
 const generateQR = (text) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        yield qrcode_1.default.toDataURL(text).then(data => {
-            const myObj = {
-                to: ['christian.george360@gmail.com'],
-                subject: "QR TEST",
-                text: "",
-                surveyUrl: `${data}`
-            };
-            (0, sendQRCode_1.default)(myObj).catch(err => console.log(err));
-        });
-    }
-    catch (err) {
-        console.error(err);
-    }
+    const response = yield qrcode_1.default.toDataURL(text).then(data => data).catch(err => err);
+    return response;
 });
-generateQR(url).catch(err => console.log(err));
+generateQR(url).then(data => (0, sendQRLink_1.default)({ QRUrl: `${data}` }));
 exports.default = generateQR;

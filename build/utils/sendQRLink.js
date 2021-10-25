@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const nodemailer_1 = __importDefault(require("nodemailer"));
 // async..await is not allowed in global scope, must use a wrapper
-function sendQRLink(surveyGroup) {
+function sendQRLink(QRUrl) {
     return __awaiter(this, void 0, void 0, function* () {
         // create reusable transporter object using the default SMTP transport
         let transporter = nodemailer_1.default.createTransport({
@@ -26,15 +26,16 @@ function sendQRLink(surveyGroup) {
                 pass: "Teamtwoagile1!", // generated ethereal password
             },
         });
-        console.log("THIS IS URL" + surveyGroup.surveyUrl);
+        var solution = QRUrl.QRUrl.split("base64,")[1];
+        // console.log("TYPE: " + typeof QRUrl.QRUrl);
+        // console.log("THIS IS URL" + QRUrl.QRUrl);
+        console.log(`<img src="${Buffer.from(solution, 'base64').toString()}"`);
         // send mail with defined transport object
         let info = yield transporter.sendMail({
             from: '"Questioneer" <survey@questioneer.com>',
-            to: surveyGroup.to,
-            subject: `${surveyGroup.subject}`,
-            text: `${surveyGroup.text}`,
-            attachments: [{ 'filename': 'image.png', 'content': surveyGroup.surveyUrl }],
-            html: `<html><b>You've been invited to take a survey <img src='${surveyGroup.surveyUrl}' alt='qrcode' /></b></html>`, // html body
+            to: ["christian.george360@gmail.com"],
+            subject: "Here is a sharable QR Code for your survey",
+            html: `<html><b>You've been invited to take a survey <img src="${solution}" alt='qrcode' /></b></html>`, // html body
         });
         console.log("Message sent: %s", info.messageId);
         // Preview only available when sending through an Ethereal account
