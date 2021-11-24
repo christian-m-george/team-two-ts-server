@@ -11,6 +11,7 @@
     "@types/express-session": "^1.17.4",
     "@types/jsonwebtoken": "^8.5.5",
     "@types/node": "^16.11.1",
+    "@types/nodemailer": "^6.4.4",
     "@types/qrcode": "^1.4.1",
     "argon2": "^0.28.2",
     "cookie-parser": "^1.4.5",
@@ -31,8 +32,5 @@
     "start": "node ./build/server.js",
     "build": "tsc -p .",
     "dev": "nodemon ./src/server.ts"
-  },
-  "devDependencies": {
-    "@types/nodemailer": "^6.4.4"
   }
 }
