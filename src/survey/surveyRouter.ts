@@ -9,6 +9,7 @@ import extractJWT from '../utils/extractJWT';
 import surveySignJWT from '../utils/surveySignJWT';
 import sendSurveyLink from '../utils/sendSurveyLink';
 import { SurveyGroup } from './surveyGroup';
+import sendSurveyLinkSelf from '../utils/sendSurveyLinkSelf';
 
 const surveyRouter: Router = express.Router();
 
@@ -20,7 +21,7 @@ surveyRouter.get("/", (req: Request, res: Response, next: NextFunction) => {
 
 
 surveyRouter.get("/all", extractJWT, async (req: Request, res: Response, next: NextFunction) => {
-    // console.log('get all route accessed');
+    console.log('get all route accessed');
     const cookie: Cookie = req.cookies;
     const hash = cookie.acctok;
     function parseJwt (token: string): UserPayload {
@@ -155,6 +156,48 @@ surveyRouter.patch('/publish-survey', extractJWT, async (req: Request, res: Resp
                 }
                 res.status(200).json('survey emailed');
                 sendSurveyLink(surveys)
+            }
+        });
+        const publishSurvey = await dbMethods.surveyMethods.publishSurvey(id, true);
+        if (publishSurvey) {
+            console.log('published')
+        } else {
+            console.log('email may have been sent, but survey was not published');
+        }
+    }    
+})
+
+surveyRouter.patch('/get-survey-link', extractJWT, async (req: Request, res: Response, next: NextFunction) => {
+    const hash = req.cookies?.acctok;
+    function parseJwt (token: string): UserPayload {
+        const payload = token.split('.')[1];
+        const payLoadObj = JSON.parse(Buffer.from(payload, 'base64').toString());
+        return payLoadObj;
+    }
+    const { email } = parseJwt(hash);
+    
+    const surveyGroup: SurveyGroup = req.body;
+    const {id, emails} = surveyGroup;
+    if (!id || !emails ||emails.length < 1) {
+        res.sendStatus(400)
+    } else {
+
+        surveySignJWT(id, [...email], (error, token) => {
+            if(error) {
+              res.sendStatus(401).json({
+                message: 'unauthorized',
+                error: error
+              });
+            } else if (token) {
+                let surveyPath = `https://team-two-client.vercel.app/survey/${token}`;
+                const obj = {
+                    to: email,
+                    subject: "Here is the sharable link to your survey",
+                    text: "Here is the sharable link to your survey",
+                    surveyUrl: `${surveyPath}`
+                }
+                res.status(200).json('survey emailed');
+                sendSurveyLinkSelf(obj)
             }
         });
         const publishSurvey = await dbMethods.surveyMethods.publishSurvey(id, true);

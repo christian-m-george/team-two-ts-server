@@ -154,7 +154,8 @@ userRouter.post("/change-password", async (req: Request, res: Response, next: Ne
 }})}}})
 
 userRouter.post('/check-token', (req: Request, res: Response, next: NextFunction) => {
-    const token = req.body.token;
+    const token = req.cookies?.acctok;
+    console.log('validating: ' + JSON.stringify(token))
     if(!token) {
         res.sendStatus(400);
     } else {
@@ -167,8 +168,8 @@ userRouter.post('/check-token', (req: Request, res: Response, next: NextFunction
                 });
             }
             else {
-                res.locals.jwt = decoded;
-                res.send(200);
+                console.log('validated');
+                res.sendStatus(200);
             }
         })
     }

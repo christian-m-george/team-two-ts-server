@@ -15,6 +15,8 @@ const authRouter: Router = express.Router();
 // Handles User logins
 // Needs to send an authorization token to client
 authRouter.post("/", async (req: Request, res: Response, next: NextFunction) => {
+
+  console.log('posting');
   
   const userEmail: string = req.body.email;
   const userPassword: string = req.body.password;
