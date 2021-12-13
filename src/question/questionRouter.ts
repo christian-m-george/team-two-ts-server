@@ -72,6 +72,32 @@ questionRouter.post("/", extractJWT, async (req: Request, res: Response, next: N
     //     }
     //     return false;
     // }
+
+    if(req.body.questionType === 'slider') {
+        console.log(JSON.stringify(req.body));
+        const question: Question = {
+            surveyId: req.body.surveyId,
+            order: req.body.num,
+            questionType: req.body.questionType,
+            questionText: req.body.questionText,
+            answers: req.body.answers
+        }
+        if(existingQuestions.length > 0) {
+            console.log("it exists (slider)");
+            const updatedQuestion = dbMethods.questionMethods.updateQuestionByIdAndOrder(question);
+            return res.json(updatedQuestion);
+        }else{
+            console.log("else (slider)");
+            const questionPosted = await dbMethods.questionMethods.addQuestion(question);
+            if(questionPosted){
+                console.log(questionPosted);
+                return res.json(questionPosted);
+            }else{
+                return res.status(400).json("not posted")
+            }
+        }
+    }
+
     if(req.body.questionType === 'comment box') {
         console.log(JSON.stringify(req.body));
         const question: Question = {
